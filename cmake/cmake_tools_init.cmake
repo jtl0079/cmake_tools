@@ -1,6 +1,5 @@
 ﻿# cmake/cmake_tools_init.cmake
 
-message(STATUS "[cmake_tools] cmake/cmake_tools_init.cmake linked")
 
 function(cmake_tools_init)
   if(DEFINED _CMAKE_TOOLS_INITIALIZED)

@@ -12,4 +12,6 @@ target_include_directories(cmake_tools
 )
 
 include(cmake/cmake_tools.cmake)
-cmake_tools_init()
+cmake_tools_fetch_sdl(
+    VERSION 3
+)
