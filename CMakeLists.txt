@@ -12,4 +12,6 @@ set(CMAKE_TOOLS_CMAKE_DIR
 )
 
 # 让使用者 include(cmake_tools) 能找到
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_TOOLS_CMAKE_DIR}")
+list(APPEND CMAKE_MODULE_PATH 
+  "${CMAKE_TOOLS_CMAKE_DIR}/cmake"
+)
