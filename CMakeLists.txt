@@ -3,15 +3,13 @@
 # cmake tools 本身不生成任何目标
 project(cmake_tools NONE)
 
-# 仅用于 FetchContent / add_subdirectory 时暴露 cmake 模块路径
-add_library(cmake_tools INTERFACE)
 
-target_include_directories(cmake_tools
-  INTERFACE
+
+# 暴露 cmake 模块路径（这是关键）
+set(CMAKE_TOOLS_CMAKE_DIR
     ${CMAKE_CURRENT_LIST_DIR}/cmake
+    CACHE INTERNAL ""
 )
 
-include(cmake/cmake_tools.cmake)
-cmake_tools_fetch_sdl(
-    VERSION 3
-)
+# 让使用者 include(cmake_tools) 能找到
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_TOOLS_CMAKE_DIR}")
