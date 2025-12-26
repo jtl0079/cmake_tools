@@ -22,17 +22,17 @@ function(cmake_tools_resolve_sdl)
 
   if(SDL_VERSION STREQUAL "1")
     include(${_CMAKE_TOOLS_SDL_DIR}/resolve_sdl1.cmake)
-    cmake_tools_fetch_sdl1(
+    cmake_tools_resolve_sdl1(
       TAG "${SDL_TAG}"
     )
   elseif(SDL_VERSION STREQUAL "2")
     include(${_CMAKE_TOOLS_SDL_DIR}/resolve_sdl2.cmake)
-    cmake_tools_fetch_sdl2(
+    cmake_tools_resolve_sdl2(
       TAG "${SDL_TAG}"
     )
   elseif(SDL_VERSION STREQUAL "3")
     include(${_CMAKE_TOOLS_SDL_DIR}/resolve_sdl3.cmake)
-    cmake_tools_fetch_sdl3(
+    cmake_tools_resolve_sdl3(
       TAG "${SDL_TAG}"
     )
   else()
