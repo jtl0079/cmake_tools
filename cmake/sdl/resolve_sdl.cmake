@@ -31,7 +31,7 @@ function(cmake_tools_resolve_sdl)
       TAG "${SDL_TAG}"
     )
   elseif(SDL_VERSION STREQUAL "3")
-    include(${CMAKE_TOOLS_SDL_INTERNAL_DIR}/resolve_sdl3.cmake)
+    include("${CMAKE_CURRENT_LIST_DIR}/resolve_sdl3.cmake")
     cmake_tools_resolve_sdl3(
       TAG "${SDL_TAG}"
     )
