@@ -8,6 +8,5 @@ list(APPEND CMAKE_MODULE_PATH
 )
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmake_tools_init.cmake)
-include(resolve_sdl)
+include(${CMAKE_CURRENT_LIST_DIR}/sdl/resolve_sdl)
 
-#include(${CMAKE_CURRENT_LIST_DIR}/ct_api.cmake)
