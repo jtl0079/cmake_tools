@@ -2,7 +2,7 @@
 
 include_guard(GLOBAL)
 
-include(resolve_sdl3)
+include("${CMAKE_CURRENT_LIST_DIR}/resolve_sdl3.cmake")
 
 set(_CMAKE_TOOLS_SDL_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
