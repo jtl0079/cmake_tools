@@ -1,7 +1,8 @@
 # cmake/sdl/resolve_sdl.cmake
 
-
 include_guard(GLOBAL)
+
+include(resolve_sdl3)
 
 set(_CMAKE_TOOLS_SDL_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
