@@ -1,0 +1,21 @@
+# ===== Visual Studio =====
+.vs/
+*.VC.db
+*.VC.VC.opendb
+
+# ===== CMake =====
+build/
+out/
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+
+# ===== vcpkg / FetchContent =====
+_deps/
+vcpkg_installed/
+
+# ===== OS =====
+Thumbs.db
+.DS_Store

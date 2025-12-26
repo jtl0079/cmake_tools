@@ -1,0 +1,16 @@
+function(cmake_tools_fetch_sdl VERSION)
+  if(VERSION STREQUAL "1")
+    include(${CMAKE_CURRENT_LIST_DIR}/fetch_sdl1.cmake)
+    cmake_tools_fetch_sdl1()
+  elseif(VERSION STREQUAL "2")
+    include(${CMAKE_CURRENT_LIST_DIR}/fetch_sdl2.cmake)
+    cmake_tools_fetch_sdl2()
+  elseif(VERSION STREQUAL "3")
+    include(${CMAKE_CURRENT_LIST_DIR}/fetch_sdl3.cmake)
+    cmake_tools_fetch_sdl3()
+  else()
+    message(FATAL_ERROR
+      "[cmake_tools] Unsupported SDL version: ${VERSION}"
+    )
+  endif()
+endfunction()
