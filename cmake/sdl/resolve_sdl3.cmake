@@ -1,7 +1,7 @@
-# cmake/sdl/fetch_sdl3.cmake
+# cmake/sdl/resolve_sdl3.cmake
 
 
-function(cmake_tools_fetch_sdl3)
+function(cmake_tools_resolve_sdl3)
   cmake_parse_arguments(
     SDL3
     ""
@@ -16,7 +16,7 @@ function(cmake_tools_fetch_sdl3)
   endif()
 
   find_package(SDL3 CONFIG QUIET)
-  if(SDL3_FOUND)
+  if(TARGET SDL3::SDL3)
     message(STATUS "[cmake_tools] SDL3 via find_package")
     return()
   endif()
@@ -32,17 +32,18 @@ function(cmake_tools_fetch_sdl3)
   )
 
   FetchContent_Declare(
-    SDL3
+    sdl3
     GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
     GIT_TAG        ${SDL3_TAG}
   )
 
-  set(SDL_SHARED   ON  CACHE BOOL "Build SDL as shared library" FORCE)
-  set(SDL_TEST OFF CACHE BOOL "" FORCE)
+  set(SDL_SHARED    ON  CACHE BOOL "Build SDL as shared library" FORCE)
+  set(SDL_STATIC    OFF CACHE BOOL "" FORCE)
+  set(SDL_TEST      OFF CACHE BOOL "" FORCE)
   set(SDL_EXAMPLES OFF CACHE BOOL "" FORCE)
   set(SDL_INSTALL OFF CACHE BOOL "" FORCE)
 
-  FetchContent_MakeAvailable(SDL3)
+  FetchContent_MakeAvailable(sdl3)
 
   if(NOT TARGET SDL3::SDL3)
     message(FATAL_ERROR
