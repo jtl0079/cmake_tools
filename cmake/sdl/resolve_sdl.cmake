@@ -2,9 +2,10 @@
 
 include_guard(GLOBAL)
 
-include("${CMAKE_CURRENT_LIST_DIR}/resolve_sdl3.cmake")
 
-set(_CMAKE_TOOLS_SDL_DIR "${CMAKE_CURRENT_LIST_DIR}")
+set(CMAKE_TOOLS_SDL_INTERNAL_DIR "${CMAKE_CURRENT_LIST_DIR}")
+include("${CMAKE_TOOLS_SDL_INTERNAL_DIR}/resolve_sdl3.cmake")
+
 
 function(cmake_tools_resolve_sdl)
   cmake_parse_arguments(
@@ -22,17 +23,17 @@ function(cmake_tools_resolve_sdl)
   endif()
 
   if(SDL_VERSION STREQUAL "1")
-    include(${_CMAKE_TOOLS_SDL_DIR}/resolve_sdl1.cmake)
+    include(${CMAKE_TOOLS_SDL_INTERNAL_DIR}/resolve_sdl1.cmake)
     cmake_tools_resolve_sdl1(
       TAG "${SDL_TAG}"
     )
   elseif(SDL_VERSION STREQUAL "2")
-    include(${_CMAKE_TOOLS_SDL_DIR}/resolve_sdl2.cmake)
+    include(${CMAKE_TOOLS_SDL_INTERNAL_DIR}/resolve_sdl2.cmake)
     cmake_tools_resolve_sdl2(
       TAG "${SDL_TAG}"
     )
   elseif(SDL_VERSION STREQUAL "3")
-    include(${_CMAKE_TOOLS_SDL_DIR}/resolve_sdl3.cmake)
+    include(${CMAKE_TOOLS_SDL_INTERNAL_DIR}/resolve_sdl3.cmake)
     cmake_tools_resolve_sdl3(
       TAG "${SDL_TAG}"
     )
