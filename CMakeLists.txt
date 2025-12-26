@@ -1,4 +1,5 @@
-﻿cmake_minimum_required(VERSION 3.21)
+﻿# cmake_tools
+cmake_minimum_required(VERSION 3.21)
 
 # cmake tools 本身不生成任何目标
 project(cmake_tools NONE)
@@ -11,7 +12,3 @@ set(CMAKE_TOOLS_CMAKE_DIR
     CACHE INTERNAL ""
 )
 
-# 让使用者 include(cmake_tools) 能找到
-list(APPEND CMAKE_MODULE_PATH 
-  "${CMAKE_TOOLS_CMAKE_DIR}/cmake"
-)
