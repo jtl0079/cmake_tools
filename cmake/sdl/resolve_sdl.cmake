@@ -2,10 +2,7 @@
 
 include_guard(GLOBAL)
 
-
-set(CMAKE_TOOLS_SDL_INTERNAL_DIR "${CMAKE_CURRENT_LIST_DIR}")
-include("${CMAKE_TOOLS_SDL_INTERNAL_DIR}/resolve_sdl3.cmake")
-
+include("${CMAKE_CURRENT_LIST_DIR}/resolve_sdl3.cmake")
 
 function(cmake_tools_resolve_sdl)
   cmake_parse_arguments(
@@ -24,6 +21,7 @@ function(cmake_tools_resolve_sdl)
 
   if(SDL_VERSION STREQUAL "1")
     include(${CMAKE_TOOLS_SDL_INTERNAL_DIR}/resolve_sdl1.cmake)
+    message(STATUS "[cmake_tools] Attempting to call cmake_tools_resolve_sdl3...")
     cmake_tools_resolve_sdl1(
       TAG "${SDL_TAG}"
     )
