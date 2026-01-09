@@ -26,7 +26,7 @@ cmake_tools/                         # repo root
 │   │   ├── platform.cmake
 │   │   ├── compiler.cmake
 │   │   └── languages.cmake
-│   ├── diagnostics/                 # dump/report/assert 函数
+│   ├── debug/                 # dump/report/assert 函数
 │   └── utils/                       # guard/log/normalize/require
 │
 ├── examples/                        # minimal 使用示例（多语言）
@@ -50,4 +50,80 @@ cmake_tools/                         # repo root
 │
 ├── scripts/                         # helper scripts (release, tag, bootstrap)
 └── LICENSE, SECURITY.md, CODE_OF_CONDUCT
+```
+
+
+```
+cmake_tools/
+├── CMakeLists.txt
+│
+├── cmake/
+│   ├── cmake_tools.cmake          # 唯一 include 入口（只做聚合，不实现）
+│   ├── api/                       # <priority=api>
+│   │   ├── core/                  # <api>/<category=core>/<pattern>
+│   │   │   └── entry.cmake        # include 所有稳定 API
+│   │   ├── audio/
+│   │   │   └── audio_api.cmake
+│   │   └── video/
+│   │       └── video_api.cmake
+│   ├── core/                      # <priority=core>
+│   │   ├── targets/               # <core>/<category=targets>/<pattern>
+│   │   │   ├── namespace.cmake
+│   │   │   └── imported.cmake
+│   │   │
+│   │   ├── environment/
+│   │   │   ├── platform.cmake
+│   │   │   ├── compiler.cmake
+│   │   │   └── languages.cmake
+│   │   │
+│   │   └── diagnostics/
+│   │       ├── debug.cmake
+│   │       └── assert.cmake
+│   ├── packages/                  # <priority=packages>
+│   │   ├── audio/
+│   │   │   ├── sdl/
+│   │   │   │   ├── resolve.cmake
+│   │   │   │   └── targets.cmake
+│   │   │   └── ffmpeg/
+│   │   │       ├── resolve.cmake
+│   │   │       └── targets.cmake
+│   │   │
+│   │   └── video/
+│   │       └── ffmpeg/
+│   │           ├── resolve.cmake
+│   │           └── targets.cmake
+│   ├── providers/                 # <priority=providers>
+│   │   ├── fetch/
+│   │   │   └── fetch.cmake
+│   │   ├── vcpkg/
+│   │   │   └── vcpkg.cmake
+│   │   ├── system/
+│   │   │   └── system.cmake
+│   │   └── pkgconfig/
+│   │       └── pkgconfig.cmake
+│   └── utils/                     # <priority=utils>
+│       ├── guard.cmake
+│       ├── log.cmake
+│       ├── normalize.cmake
+│       └── require.cmake
+│
+├── examples/
+│   ├── cpp_minimal/
+│   ├── sdl_audio/
+│   └── ffmpeg_decode/
+│
+├── tests/
+│   ├── unit/
+│   └── integration/
+│
+├── docs/
+│   ├── README.md
+│   ├── API.md
+│   ├── ARCHITECTURE.md      # ← 强烈建议新增
+│   └── MIGRATION.md
+│
+├── scripts/
+└── LICENSE
+
+
 ```
