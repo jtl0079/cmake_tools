@@ -5,17 +5,39 @@ cmake_minimum_required(VERSION 3.21)
 project(cmake_tools NONE)
 
 
-set(CMAKE_TOOLS_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}")
-set(CMAKE_TOOLS_CMAKE_DIR "${CMAKE_TOOLS_ROOT_DIR}/cmake")
-set(CMAKE_TOOLS_CMAKE_DIR "${CMAKE_TOOLS_CMAKE_DIR}" CACHE INTERNAL "Path to cmake_tools cmake modules")
-
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_TOOLS_CMAKE_DIR}")
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_TOOLS_CMAKE_DIR}/sdl") 
+set(CMAKE_TOOLS_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}")           # cmake_tools 根目录
+set(CMAKE_TOOLS_CMAKE_DIR "${CMAKE_TOOLS_ROOT_DIR}/cmake")      # cmake_tools cmake/ 模块目录，等价于其他项目的 src/
 
 
-get_directory_property(has_parent PARENT_DIRECTORY)
-if(has_parent)
-    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} PARENT_SCOPE)
-endif()
+# 递归查找所有 .cmake 文件
+file(GLOB_RECURSE CMAKE_TOOLS_SRC
+    "${CMAKE_TOOLS_CMAKE_DIR}/*.cmake"
+)
 
-message(STATUS "[cmake_tools::CMakeLists] Module Path: ${CMAKE_TOOLS_CMAKE_DIR}")
+# 排除特定目录和文件
+set(EXCLUDE_PATTERNS
+    ".*/test/.*"
+    ".*/tests/.*"
+    ".*/deprecated/.*"
+    ".*/internal/.*"
+    ".*/example/.*"
+    ".*/cmake_tools\\.cmake$"      # 避免重复加载主配置文件
+    ".*/cmake_tools_init\\.cmake$"
+    ".*/cmake_tools_version\\.cmake$"
+)
+
+foreach(pattern ${EXCLUDE_PATTERNS})
+    list(FILTER CMAKE_TOOLS_SRC EXCLUDE REGEX ${pattern})
+endforeach()
+
+# 按路径排序，确保依赖顺序
+list(SORT CMAKE_TOOLS_SRC)
+
+
+foreach(src ${CMAKE_TOOLS_SRC})
+    include(${src})
+    message(STATUS "[cmake_tools] Loaded: ${src}")
+endforeach()
+
+message(STATUS "[cmake_tools] Total modules loaded: ${CMAKE_TOOLS_SRC_LENGTH}")
+
