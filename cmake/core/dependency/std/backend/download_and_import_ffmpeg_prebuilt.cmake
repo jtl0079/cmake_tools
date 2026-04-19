@@ -59,7 +59,7 @@ function(cmake_tools_download_and_import_ffmpeg_prebuilt)
     set(bin_dir "${ffmpeg_dir}/bin")
     
     # 核心库列表
-    set(core_libs avcodec avformat avutil swscale swresample)
+    set(core_libs avcodec avdevice avfilter avformat avutil swscale swresample)
     
     foreach(lib ${core_libs})
         add_library(FFmpeg::${lib} UNKNOWN IMPORTED)
