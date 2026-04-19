@@ -1,6 +1,7 @@
-# cmake_tools
+# How to use cmake_tools 
 
-# method
+# method 1: use FetchContent
+Add the following content to your cmakelist.txt
 ```
 include(FetchContent)
 FetchContent_Declare(
@@ -11,7 +12,5 @@ FetchContent_Declare(
 
 
 FetchContent_MakeAvailable(cmake_tools)
-include("${cmake_tools_SOURCE_DIR}/cmake/cmake_tools.cmake")
-
 
 ```
