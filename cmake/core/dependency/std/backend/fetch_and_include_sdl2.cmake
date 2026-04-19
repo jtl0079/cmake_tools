@@ -63,5 +63,5 @@ function(cmake_tools_fetch_and_include_sdl2)
     set(SDL2_BINARY_DIR ${sdl2_BINARY_DIR} PARENT_SCOPE)
 endfunction()
 
-
-cmake_tools_fetch_and_include_sdl2(VERSION 2.30.0)
+# how to use:
+# cmake_tools_fetch_and_include_sdl2(VERSION 2.30.0)

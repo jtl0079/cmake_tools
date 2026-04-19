@@ -1,7 +1,7 @@
 # How to use cmake_tools 
 
-# method 1: use FetchContent
-Add the following content to your cmakelist.txt
+## method 1: use FetchContent
+Add the following content to your CMakeList.txt
 ```
 include(FetchContent)
 FetchContent_Declare(
