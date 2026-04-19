@@ -3,31 +3,23 @@
 # 下载并导入 FFmpeg 预编译库（Windows x64，GPL shared）
 #
 # 传参
-#   VERSION: FFmpeg 版本号（如 8.1），与 GIT_TAG 二选一
-#   GIT_TAG: 指定发布标签（如 n8.1-latest），优先级高于 VERSION
-#   DOWNLOAD_DIR: 指定下载目录
+#   FILENAME: 完整文件名（如 ffmpeg-n8.1-latest-win64-gpl-shared-8.1.zip）
+#   DOWNLOAD_DIR: 指定下载目录（可选，默认为 ${CMAKE_BINARY_DIR}/downloads）
 
 function(cmake_tools_download_and_import_ffmpeg_prebuilt)
     set(options "")
-    set(one_value_args VERSION GIT_TAG DOWNLOAD_DIR)
+    set(one_value_args FILENAME DOWNLOAD_DIR)
     set(multi_value_args "")
-    cmake_parse_arguments(FFMPEG "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
+    cmake_parse_arguments(FFMPEG "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN}) 
     
     # ================================================
-    # 版本配置
+    # 文件名配置
     # ================================================
-    if(NOT FFMPEG_VERSION)
-        set(FFMPEG_VERSION "8.1")
+    if(NOT FFMPEG_FILENAME)
+        set(FFMPEG_FILENAME "ffmpeg-n8.1-latest-win64-gpl-shared-8.1.zip")
     endif()
     
-    if(FFMPEG_GIT_TAG)
-        set(tag ${FFMPEG_GIT_TAG})
-    else()
-        set(tag "n${FFMPEG_VERSION}-latest")
-    endif()
-    
-    set(ffmpeg_zip "ffmpeg-${tag}-win64-gpl-shared-${FFMPEG_VERSION}.zip")
-    set(ffmpeg_url "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/${ffmpeg_zip}")
+    set(ffmpeg_url "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/${FFMPEG_FILENAME}")    
     
     # ================================================
     # 下载和解压
@@ -35,17 +27,19 @@ function(cmake_tools_download_and_import_ffmpeg_prebuilt)
     if(FFMPEG_DOWNLOAD_DIR)
         set(root_dir ${FFMPEG_DOWNLOAD_DIR})
     else()
-        set(root_dir "${CMAKE_BINARY_DIR}/ffmpeg_prebuilt")
+        set(root_dir "${CMAKE_BINARY_DIR}/downloads")   # 默认下载目录
     endif()
     
-    set(ffmpeg_dir "${root_dir}/ffmpeg-${version}")
-    set(zip_path "${root_dir}/${ffmpeg_zip}")
+    # 解压后的目录名（去掉 .zip）
+    string(REGEX REPLACE "\\.zip$" "" extracted_name "${FFMPEG_FILENAME}")
+    set(ffmpeg_dir "${root_dir}/${extracted_name}")
+    set(zip_path "${root_dir}/${FFMPEG_FILENAME}")
     
     if(NOT EXISTS "${ffmpeg_dir}")
         file(MAKE_DIRECTORY "${root_dir}")
         
         if(NOT EXISTS "${zip_path}")
-            message(STATUS "Downloading FFmpeg ${version}...")
+            message(STATUS "Downloading ${FFMPEG_FILENAME}...")
             file(DOWNLOAD "${ffmpeg_url}" "${zip_path}" SHOW_PROGRESS STATUS st)
             list(GET st 0 code)
             if(NOT code EQUAL 0)
@@ -55,12 +49,6 @@ function(cmake_tools_download_and_import_ffmpeg_prebuilt)
         
         message(STATUS "Extracting...")
         file(ARCHIVE_EXTRACT INPUT "${zip_path}" DESTINATION "${root_dir}")
-        
-        # 重命名解压后的目录
-        file(GLOB extracted "${root_dir}/ffmpeg-${tag}-win64-gpl-shared-*")
-        if(extracted)
-            file(RENAME "${extracted}" "${ffmpeg_dir}")
-        endif()
     endif()
     
     # ================================================
@@ -100,8 +88,11 @@ function(cmake_tools_download_and_import_ffmpeg_prebuilt)
     set(FFMPEG_LIB ${lib_dir} PARENT_SCOPE)
     set(FFMPEG_BIN ${bin_dir} PARENT_SCOPE)
     
-    message(STATUS "FFmpeg ${version} imported")
+    message(STATUS "FFmpeg imported from ${FFMPEG_FILENAME}")
 endfunction()
+
+cmake_tools_download_and_import_ffmpeg_prebuilt()
+
 
 # 使用示例:
 # cmake_tools_download_and_import_ffmpeg_prebuilt(VERSION 8.1)
