@@ -91,7 +91,7 @@ function(cmake_tools_download_and_import_ffmpeg_prebuilt)
     message(STATUS "FFmpeg imported from ${FFMPEG_FILENAME}")
 endfunction()
 
-cmake_tools_download_and_import_ffmpeg_prebuilt()
+#cmake_tools_download_and_import_ffmpeg_prebuilt()
 
 
 # 使用示例:
