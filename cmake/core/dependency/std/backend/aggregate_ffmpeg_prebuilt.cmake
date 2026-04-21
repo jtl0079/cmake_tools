@@ -27,6 +27,8 @@ function(aggregate_ffmpeg_prebuilt)
     # 1. 确定目录
     # ================================================
     
+    set(FFMPEG_ROOT_DIR ${FFMPEG_ROOT_DIR})
+    
     if(NOT FFMPEG_ROOT_DIR)
         set(search_dirs
             "${CMAKE_BINARY_DIR}/downloads"
@@ -121,7 +123,7 @@ function(aggregate_ffmpeg_prebuilt)
             message(STATUS "  Added FFmpeg::${lib_name} (static)")
         endif()
         
-        # 创建成功后，设置一个全局属性标记
+        # 设置全局属性标记
         set_target_properties(FFmpeg::${lib_name} PROPERTIES
             IMPORTED_GLOBAL TRUE
         )
@@ -148,11 +150,13 @@ function(aggregate_ffmpeg_prebuilt)
     )
     
     set(added_libs "")
+    set(added_lib_paths "")
     
     foreach(lib ${core_libs})
         add_ffmpeg_lib(${lib} "${lib_dir}" "${bin_dir}" "${include_dir}")
         if(TARGET FFmpeg::${lib})
             list(APPEND added_libs ${lib})
+            list(APPEND added_lib_paths "${lib_dir}/${lib}.lib")
         else()
             message(FATAL_ERROR "Required FFmpeg library not found: ${lib}.lib")
         endif()
@@ -169,6 +173,7 @@ function(aggregate_ffmpeg_prebuilt)
         add_ffmpeg_lib(${lib} "${lib_dir}" "${bin_dir}" "${include_dir}")
         if(TARGET FFmpeg::${lib})
             list(APPEND added_libs ${lib})
+            list(APPEND added_lib_paths "${lib_dir}/${lib}.lib")
         else()
             if(NOT FFMPEG_ALLOW_MISSING)
                 message(FATAL_ERROR "Optional FFmpeg library not found: ${lib}.lib")
@@ -184,9 +189,8 @@ function(aggregate_ffmpeg_prebuilt)
     
     add_library(FFmpeg::All INTERFACE IMPORTED)
     
-    foreach(lib ${added_libs})
-        target_link_libraries(FFmpeg::All INTERFACE FFmpeg::${lib})
-    endforeach()
+    # 🔧 关键修复：直接传递 .lib 文件的完整路径，而不是依赖 FFmpeg::${lib} target
+    target_link_libraries(FFmpeg::All INTERFACE ${added_lib_paths})
     
     target_include_directories(FFmpeg::All INTERFACE "${include_dir}")
     
@@ -200,12 +204,14 @@ function(aggregate_ffmpeg_prebuilt)
     set(FFMPEG_BIN ${bin_dir} PARENT_SCOPE)
     set(FFMPEG_FOUND TRUE PARENT_SCOPE)
     set(FFMPEG_LIBRARIES ${added_libs} PARENT_SCOPE)
+    set(FFMPEG_LIBRARY_PATHS ${added_lib_paths} PARENT_SCOPE)
     
     message(STATUS "FFmpeg aggregation complete")
     message(STATUS "  Core libs: ${core_libs}")
     message(STATUS "  Optional libs added: ${added_libs}")
     message(STATUS "  Include: ${include_dir}")
     message(STATUS "  Lib: ${lib_dir}")
+    message(STATUS "  Linked paths: ${added_lib_paths}")
     if(EXISTS "${bin_dir}")
         message(STATUS "  Bin: ${bin_dir}")
     endif()
