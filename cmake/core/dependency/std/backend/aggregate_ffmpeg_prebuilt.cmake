@@ -90,7 +90,8 @@ function(aggregate_ffmpeg_prebuilt)
         set(lib_path "${lib_dir}/${lib_name}.lib")
         
         if(NOT EXISTS "${lib_path}")
-            return(FALSE)
+            set(${result_var} FALSE PARENT_SCOPE)
+            return()
         endif()
         
         # 查找 DLL（支持 ${lib}-*.dll 格式）
@@ -121,7 +122,7 @@ function(aggregate_ffmpeg_prebuilt)
             message(STATUS "  Added FFmpeg::${lib_name} (static)")
         endif()
         
-        return(TRUE)
+        set(${result_var} TRUE PARENT_SCOPE)
     endfunction()
     
     # ================================================
