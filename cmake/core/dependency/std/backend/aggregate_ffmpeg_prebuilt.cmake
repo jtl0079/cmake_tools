@@ -90,7 +90,6 @@ function(aggregate_ffmpeg_prebuilt)
         set(lib_path "${lib_dir}/${lib_name}.lib")
         
         if(NOT EXISTS "${lib_path}")
-            set(${result_var} FALSE PARENT_SCOPE)
             return()
         endif()
         
@@ -122,7 +121,10 @@ function(aggregate_ffmpeg_prebuilt)
             message(STATUS "  Added FFmpeg::${lib_name} (static)")
         endif()
         
-        set(${result_var} TRUE PARENT_SCOPE)
+        # 创建成功后，设置一个全局属性标记
+        set_target_properties(FFmpeg::${lib_name} PROPERTIES
+            IMPORTED_GLOBAL TRUE
+        )
     endfunction()
     
     # ================================================
@@ -148,7 +150,8 @@ function(aggregate_ffmpeg_prebuilt)
     set(added_libs "")
     
     foreach(lib ${core_libs})
-        if(add_ffmpeg_lib(${lib} "${lib_dir}" "${bin_dir}" "${include_dir}"))
+        add_ffmpeg_lib(${lib} "${lib_dir}" "${bin_dir}" "${include_dir}")
+        if(TARGET FFmpeg::${lib})
             list(APPEND added_libs ${lib})
         else()
             message(FATAL_ERROR "Required FFmpeg library not found: ${lib}.lib")
