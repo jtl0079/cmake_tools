@@ -35,13 +35,24 @@ function(cmake_tools_aggregate_ffmpeg_prebuilt)
             "${CMAKE_BINARY_DIR}/ffmpeg_prebuilt"
             "${CMAKE_SOURCE_DIR}/third_party/ffmpeg"
         )
-        
+    
         foreach(search_dir ${search_dirs})
             if(EXISTS "${search_dir}")
-                file(GLOB ffmpeg_dirs "${search_dir}/ffmpeg-*")
+                # 使用 LIST_DIRECTORIES true 只匹配目录
+                file(GLOB ffmpeg_dirs LIST_DIRECTORIES true "${search_dir}/ffmpeg-*/")
                 if(ffmpeg_dirs)
-                    list(GET ffmpeg_dirs 0 FFMPEG_ROOT_DIR)
-                    message(STATUS "Auto-detected FFmpeg root: ${FFMPEG_ROOT_DIR}")
+                    # 进一步验证目录有效性
+                    foreach(dir ${ffmpeg_dirs})
+                        if(EXISTS "${dir}/include/libavcodec/avcodec.h" 
+                           AND EXISTS "${dir}/lib/avcodec.lib")
+                            set(FFMPEG_ROOT_DIR "${dir}")
+                            message(STATUS "Auto-detected FFmpeg root: ${FFMPEG_ROOT_DIR}")
+                            break()
+                        endif()
+                    endforeach()
+                endif()
+            
+                if(FFMPEG_ROOT_DIR)
                     break()
                 endif()
             endif()
