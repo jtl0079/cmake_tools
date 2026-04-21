@@ -15,7 +15,7 @@
 #   BIN_DIR: DLL 目录（可选，默认 ${ROOT_DIR}/bin）
 #   ALLOW_MISSING: 允许缺少非核心库（默认 ON）
 
-function(cmake_tools_aggregate_ffmpeg_prebuilt)
+function(aggregate_ffmpeg_prebuilt)
     set(one_value_args ROOT_DIR LIB_DIR INCLUDE_DIR BIN_DIR ALLOW_MISSING)
     cmake_parse_arguments(FFMPEG "" "${one_value_args}" "" ${ARGN})
     
@@ -38,23 +38,17 @@ function(cmake_tools_aggregate_ffmpeg_prebuilt)
     
         foreach(search_dir ${search_dirs})
             if(EXISTS "${search_dir}")
-                # 使用 LIST_DIRECTORIES true 只匹配目录
-                file(GLOB ffmpeg_dirs LIST_DIRECTORIES true "${search_dir}/ffmpeg-*/")
-                if(ffmpeg_dirs)
-                    # 进一步验证目录有效性
-                    foreach(dir ${ffmpeg_dirs})
-                        if(EXISTS "${dir}/include/libavcodec/avcodec.h" 
-                           AND EXISTS "${dir}/lib/avcodec.lib")
-                            set(FFMPEG_ROOT_DIR "${dir}")
-                            message(STATUS "Auto-detected FFmpeg root: ${FFMPEG_ROOT_DIR}")
-                            break()
-                        endif()
-                    endforeach()
-                endif()
-            
-                if(FFMPEG_ROOT_DIR)
-                    break()
-                endif()
+                file(GLOB matches "${search_dir}/ffmpeg-*")
+                foreach(match ${matches})
+                    if(IS_DIRECTORY "${match}")  # ✅ 只取目录，排除 zip 文件
+                        set(FFMPEG_ROOT_DIR "${match}")
+                        message(STATUS "Auto-detected FFmpeg root: ${FFMPEG_ROOT_DIR}")
+                        break()
+                    endif()
+                endforeach()
+            endif()
+            if(FFMPEG_ROOT_DIR)
+                break()
             endif()
         endforeach()
     endif()
