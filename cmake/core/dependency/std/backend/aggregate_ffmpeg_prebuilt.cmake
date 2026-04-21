@@ -15,7 +15,7 @@
 #   BIN_DIR: DLL 目录（可选，默认 ${ROOT_DIR}/bin）
 #   ALLOW_MISSING: 允许缺少非核心库（默认 ON）
 
-function(aggregate_ffmpeg_prebuilt)
+function(cmake_tools_aggregate_ffmpeg_prebuilt)
     set(one_value_args ROOT_DIR LIB_DIR INCLUDE_DIR BIN_DIR ALLOW_MISSING)
     cmake_parse_arguments(FFMPEG "" "${one_value_args}" "" ${ARGN})
     
