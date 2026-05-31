@@ -36,7 +36,7 @@ function(core_dependency_std_backend_create_ffmpeg_target)
     cmake_parse_arguments(FFMPEG "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
     
     # ================================================
-    #   参数验证
+    #   validate param
     # ================================================
     if(NOT FFMPEG_FFMPEG_DIR)
         message(FATAL_ERROR "FFMPEG_DIR is required")
@@ -75,7 +75,7 @@ function(core_dependency_std_backend_create_ffmpeg_target)
     endif()
     
     # ================================================
-    # 设置目录路径
+    # set dir path
     # ================================================
     set(include_dir "${FFMPEG_FFMPEG_DIR}/include")
     set(lib_dir "${FFMPEG_FFMPEG_DIR}/lib")
@@ -90,7 +90,7 @@ function(core_dependency_std_backend_create_ffmpeg_target)
     endif()
     
     # ================================================
-    # FFmpeg 库列表
+    # FFmpeg lib list
     # ================================================
     set(ffmpeg_libs
         avcodec
@@ -131,7 +131,7 @@ function(core_dependency_std_backend_create_ffmpeg_target)
     endforeach()
     
     # ================================================
-    # 创建聚合目标 FFmpeg::All
+    # create target FFmpeg::All
     # ================================================
     add_library(${FFMPEG_TARGET_NAME}::All INTERFACE IMPORTED ${global_flag})
     
@@ -151,7 +151,7 @@ function(core_dependency_std_backend_create_ffmpeg_target)
     target_include_directories(${FFMPEG_TARGET_NAME}::All INTERFACE "${include_dir}")
     
     # ================================================
-    # 导出变量
+    # return 
     # ================================================
     set(${FFMPEG_TARGET_NAME}_ROOT ${FFMPEG_FFMPEG_DIR} PARENT_SCOPE)
     set(${FFMPEG_TARGET_NAME}_INCLUDE ${include_dir} PARENT_SCOPE)
