@@ -27,12 +27,13 @@
 # TARGET_NAME = "FFmpeg"
 
 
-get_filename_component(_current_dir ${CMAKE_CURRENT_LIST_FILE} PATH)
-include(${_current_dir}/../../backend/ffmpeg/fetch/core_dependency_std_backend_download_ffmpeg_prebuilt.cmake)
-include(${_current_dir}/../../backend/ffmpeg/create/core_dependency_std_backend_create_ffmpeg_target.cmake)
 
 
 function(core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target)
+    get_filename_component(_current_dir ${CMAKE_CURRENT_LIST_FILE} PATH)
+    include(${_current_dir}/../../backend/ffmpeg/fetch/core_dependency_std_backend_download_ffmpeg_prebuilt.cmake)
+    include(${_current_dir}/../../backend/ffmpeg/create/core_dependency_std_backend_create_ffmpeg_target.cmake)
+
     set(options)
     set(one_value_args  FILENAME 
         DOWNLOAD_DIR    TARGET_NAME 
