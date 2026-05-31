@@ -19,7 +19,7 @@
 #
 #
 # ====================================
-#           deafult variable
+#           default variable
 # ====================================
 # FFMPEG_DIR = 
 # TARGET_NAME = FFmpeg
@@ -27,9 +27,12 @@
 # IS_SILENT_MODE = FALSE
 
 
+
 function(core_dependency_std_backend_create_ffmpeg_target)
-    set(options "")
-    set(one_value_args FFMPEG_DIR TARGET_NAME IS_GLOBAL_MODE IS_SILENT_MODE)
+    set(options)  # 清空 options
+    set(one_value_args  FFMPEG_DIR  TARGET_NAME 
+        IS_GLOBAL_MODE  IS_SILENT_MODE
+    )
     set(multi_value_args "")
     cmake_parse_arguments(FFMPEG "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
     
@@ -92,8 +95,6 @@ function(core_dependency_std_backend_create_ffmpeg_target)
     # ================================================
     set(library_type "UNKNOWN")
     set(has_dll_files FALSE)
-    set(has_import_libs FALSE)
-    set(has_static_libs FALSE)
     
     # 检查是否存在 bin 目录且包含 DLL
     if(EXISTS "${bin_dir}")
@@ -103,146 +104,118 @@ function(core_dependency_std_backend_create_ffmpeg_target)
         endif()
     endif()
     
-    # 检查 lib 目录中的 .lib 文件类型
-    # 方法1：检查是否存在同名的 .dll 文件（判断是否为导入库）
-    # 方法2：通过文件大小粗略判断（导入库通常较小，静态库较大）
-    # 方法3：使用 dumpbin 或 llvm-objdump 检查（最准确）
-    
-    # 尝试检测库的类型
+    # ================================================
+    # 创建目标
+    # ================================================
     set(core_libs avcodec avdevice avfilter avformat avutil swscale swresample)
     
-    foreach(lib ${core_libs})
-        set(lib_path "${lib_dir}/${lib}.lib")
-        if(EXISTS "${lib_path}")
-            # 检查是否是导入库（需要配合 DLL 使用）
-            if(has_dll_files)
-                # 检查是否有对应的 DLL
-                file(GLOB dll_match "${bin_dir}/${lib}*.dll")
-                if(dll_match)
-                    set(has_import_libs TRUE)
-                else()
-                    set(has_static_libs TRUE)
-                endif()
-            else()
-                # 没有 bin 目录或没有 DLL，可能是静态库
-                set(has_static_libs TRUE)
-            endif()
-        endif()
-    endforeach()
+    # 用于收集成功创建的库
+    set(created_libs "")
     
-    # 决策库类型
-    if(has_import_libs AND NOT has_static_libs)
-        set(library_type "SHARED")
-        if(NOT is_silent)
-            message(STATUS "Detected FFmpeg shared libraries (DLL + import libs)")
-        endif()
-    elseif(has_static_libs AND NOT has_import_libs)
-        set(library_type "STATIC")
-        if(NOT is_silent)
-            message(STATUS "Detected FFmpeg static libraries")
-        endif()
-    elseif(has_import_libs AND has_static_libs)
-        # 两者都有，优先使用动态库（除非用户指定）
-        set(library_type "SHARED")
-        if(NOT is_silent)
-            message(STATUS "Both shared and static libs detected, using shared by default")
-        endif()
-    else()
-        # 无法检测，尝试通过文件扩展名判断
-        set(library_type "UNKNOWN")
-        if(NOT is_silent)
-            message(WARNING "Cannot detect library type, will try to configure both")
-        endif()
-    endif()
-    
-    # ================================================
-    # 创建目标（根据检测结果）
-    # ================================================
     foreach(lib ${core_libs})
-        set(lib_path "${lib_dir}/${lib}.lib")
+        set(implib_path "${lib_dir}/${lib}.lib")
         
-        if(NOT EXISTS "${lib_path}")
+        if(NOT EXISTS "${implib_path}")
             if(NOT is_silent)
-                message(WARNING "Library not found: ${lib_path}")
+                message(WARNING "Import library not found: ${implib_path}")
             endif()
             continue()
+        endif()
+        
+        # 记录库类型
+        if(has_dll_files)
+            set(library_type "SHARED")
+            # 检查是否有对应的 DLL
+            file(GLOB dll_match "${bin_dir}/${lib}*.dll")
+            if(dll_match)
+                if(NOT is_silent)
+                    message(DEBUG "  ${lib}: shared library (DLL + import lib)")
+                endif()
+            else()
+                if(NOT is_silent)
+                    message(DEBUG "  ${lib}: static library (no matching DLL)")
+                endif()
+                set(library_type "STATIC")
+            endif()
+        else()
+            set(library_type "STATIC")
+            if(NOT is_silent)
+                message(DEBUG "  ${lib}: static library")
+            endif()
         endif()
         
         # 创建 IMPORTED 目标
         add_library(${FFMPEG_TARGET_NAME}::${lib} UNKNOWN IMPORTED ${global_flag})
         
-        if(library_type STREQUAL "SHARED")
-            # 动态库模式：查找对应的 DLL
+        # 关键修复：IMPORTED_LOCATION 必须指向 .lib 文件，不能指向 DLL
+        set_target_properties(${FFMPEG_TARGET_NAME}::${lib} PROPERTIES
+            IMPORTED_LOCATION "${implib_path}"
+            IMPORTED_IMPLIB "${implib_path}"
+            INTERFACE_INCLUDE_DIRECTORIES "${include_dir}"
+        )
+        
+        # 如果是动态库，保存 DLL 位置供运行时使用
+        if(has_dll_files)
             file(GLOB dll_file "${bin_dir}/${lib}*.dll")
             if(dll_file)
-                # 取第一个匹配的 DLL
-                list(GET dll_file 0 first_dll)
-                set_target_properties(${FFMPEG_TARGET_NAME}::${lib} PROPERTIES
-                    IMPORTED_LOCATION "${first_dll}"
-                    IMPORTED_IMPLIB "${lib_path}"
-                    INTERFACE_INCLUDE_DIRECTORIES "${include_dir}"
-                )
-                if(NOT is_silent)
-                    message(DEBUG "  ${lib}: shared (DLL: ${first_dll})")
-                endif()
-            else()
-                # 没找到 DLL，回退到静态库模式
-                set_target_properties(${FFMPEG_TARGET_NAME}::${lib} PROPERTIES
-                    IMPORTED_LOCATION "${lib_path}"
-                    INTERFACE_INCLUDE_DIRECTORIES "${include_dir}"
-                )
-                if(NOT is_silent)
-                    message(WARNING "  ${lib}: DLL not found, using static lib instead")
-                endif()
-            endif()
-        else()
-            # 静态库模式
-            set_target_properties(${FFMPEG_TARGET_NAME}::${lib} PROPERTIES
-                IMPORTED_LOCATION "${lib_path}"
-                INTERFACE_INCLUDE_DIRECTORIES "${include_dir}"
-            )
-            if(NOT is_silent)
-                message(DEBUG "  ${lib}: static")
+                # 将 DLL 路径保存为自定义属性
+                set_property(TARGET ${FFMPEG_TARGET_NAME}::${lib} PROPERTY 
+                    FFMPEG_DLL_PATH "${dll_file}")
             endif()
         endif()
+        
+        list(APPEND created_libs ${lib})
     endforeach()
     
+    if(NOT created_libs)
+        message(FATAL_ERROR "No FFmpeg libraries found in ${lib_dir}")
+    endif()
+    
+    # ================================================
     # 创建聚合接口目标
+    # ================================================
     add_library(${FFMPEG_TARGET_NAME}::All INTERFACE IMPORTED ${global_flag})
     
-    # 收集所有库名称
-    set(all_libs "")
-    foreach(lib ${core_libs})
-        if(TARGET ${FFMPEG_TARGET_NAME}::${lib})
-            list(APPEND all_libs ${FFMPEG_TARGET_NAME}::${lib})
-        endif()
+    # 收集所有库目标
+    set(all_targets "")
+    foreach(lib ${created_libs})
+        list(APPEND all_targets ${FFMPEG_TARGET_NAME}::${lib})
     endforeach()
     
-    target_link_libraries(${FFMPEG_TARGET_NAME}::All INTERFACE ${all_libs})
+    target_link_libraries(${FFMPEG_TARGET_NAME}::All INTERFACE ${all_targets})
     target_include_directories(${FFMPEG_TARGET_NAME}::All INTERFACE "${include_dir}")
     
     # ================================================
-    # 添加辅助目标：复制 DLL 到输出目录（仅动态库模式）
+    # 添加辅助函数：复制 DLL 到输出目录（仅动态库模式）
     # ================================================
-    if(library_type STREQUAL "SHARED" AND EXISTS "${bin_dir}")
-        # 创建一个自定义目标来复制 DLL
-        add_custom_target(${FFMPEG_TARGET_NAME}_CopyDlls
-            COMMENT "Copying FFmpeg DLLs to output directory"
-        )
+    if(has_dll_files)
+        # 创建一个全局属性来存储 DLL 列表
+        set_property(GLOBAL PROPERTY ${FFMPEG_TARGET_NAME}_DLL_LIST "")
         
-        # 获取所有 DLL 文件
-        file(GLOB all_dlls "${bin_dir}/*.dll")
-        foreach(dll ${all_dlls})
-            get_filename_component(dll_name ${dll} NAME)
-            add_custom_command(TARGET ${FFMPEG_TARGET_NAME}_CopyDlls POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    "${dll}" "$<TARGET_FILE_DIR:${FFMPEG_TARGET_NAME}::All>/${dll_name}"
-                COMMENT "Copying ${dll_name}"
-            )
+        foreach(lib ${created_libs})
+            get_property(dll_path TARGET ${FFMPEG_TARGET_NAME}::${lib} 
+                PROPERTY FFMPEG_DLL_PATH)
+            if(dll_path AND EXISTS "${dll_path}")
+                set_property(GLOBAL APPEND PROPERTY 
+                    ${FFMPEG_TARGET_NAME}_DLL_LIST "${dll_path}")
+            endif()
         endforeach()
         
+        # 创建一个函数，用户可以在自己的 target 上调用
+        function(ffmpeg_copy_dlls TARGET_NAME)
+            get_property(dll_list GLOBAL PROPERTY ${FFMPEG_TARGET_NAME}_DLL_LIST)
+            foreach(dll ${dll_list})
+                get_filename_component(dll_name ${dll} NAME)
+                add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                        "${dll}" "$<TARGET_FILE_DIR:${TARGET_NAME}>/${dll_name}"
+                    COMMENT "Copying ${dll_name} to output directory"
+                )
+            endforeach()
+        endfunction()
+        
         if(NOT is_silent)
-            message(STATUS "Added target ${FFMPEG_TARGET_NAME}_CopyDlls to copy runtime DLLs")
+            message(STATUS "FFmpeg shared libraries detected. Use ffmpeg_copy_dlls(your_target) to copy DLLs")
         endif()
     endif()
     
@@ -256,19 +229,24 @@ function(core_dependency_std_backend_create_ffmpeg_target)
     set(${FFMPEG_TARGET_NAME}_TYPE ${library_type} PARENT_SCOPE)
     set(${FFMPEG_TARGET_NAME}_TARGETS_CREATED TRUE PARENT_SCOPE)
     
+    # 导出辅助函数到父作用域
+    set(FFMPEG_COPY_DLLS_FUNCTION_DEFINED TRUE PARENT_SCOPE)
+    
     # 非安静模式下输出消息
     if(NOT is_silent)
         message(STATUS "FFmpeg targets created from: ${FFMPEG_FFMPEG_DIR}")
         message(STATUS "  Library type: ${library_type}")
+        message(STATUS "  Libraries found: ${created_libs}")
         message(STATUS "  Targets: ${FFMPEG_TARGET_NAME}::All and ${FFMPEG_TARGET_NAME}::*")
-        if(library_type STREQUAL "SHARED")
-            message(STATUS "  Use ${FFMPEG_TARGET_NAME}_CopyDlls to copy DLLs to output")
+        if(has_dll_files)
+            message(STATUS "  To copy DLLs: ffmpeg_copy_dlls(your_executable_target)")
         endif()
         if(is_global)
             message(STATUS "  Global targets: YES")
         endif()
     endif()
 endfunction()
+
 
 # ================================================
 #   example usage
@@ -279,6 +257,7 @@ endfunction()
 #     FFMPEG_DIR "C:/downloads/ffmpeg-n8.1-latest-win64-gpl-shared-8.1"
 # )
 # target_link_libraries(my_app PRIVATE FFmpeg::All)
+# ffmpeg_copy_dlls(my_app)  # 自动复制 DLL 到输出目录
 
 # 示例2: 安静模式
 # core_dependency_std_backend_create_ffmpeg_target(
@@ -286,6 +265,7 @@ endfunction()
 #     IS_SILENT_MODE TRUE
 # )
 # target_link_libraries(my_app PRIVATE FFmpeg::All)
+# ffmpeg_copy_dlls(my_app)
 
 # 示例3: 自定义目标名称
 # core_dependency_std_backend_create_ffmpeg_target(
@@ -293,6 +273,7 @@ endfunction()
 #     TARGET_NAME "CustomFFmpeg"
 # )
 # target_link_libraries(my_app PRIVATE CustomFFmpeg::All)
+# ffmpeg_copy_dlls(my_app)  # 注意：函数名不变，但会使用正确的目标前缀
 
 # 示例4: 创建全局目标（所有子目录可见）
 # core_dependency_std_backend_create_ffmpeg_target(
@@ -301,9 +282,16 @@ endfunction()
 # )
 # 在任何子目录都可以使用 FFmpeg::All
 
-# 示例5: 全局 + 安静
+# 示例5: 手动复制 DLL（如果不想使用辅助函数）
 # core_dependency_std_backend_create_ffmpeg_target(
 #     FFMPEG_DIR "D:/libs/ffmpeg"
-#     IS_GLOBAL_MODE TRUE
 #     IS_SILENT_MODE TRUE
+# )
+# target_link_libraries(my_app PRIVATE FFmpeg::All)
+# add_custom_command(TARGET my_app POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#         "${FFMPEG_BIN}/avcodec-62.dll" "$<TARGET_FILE_DIR:my_app>/"
+#     COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#         "${FFMPEG_BIN}/avformat-62.dll" "$<TARGET_FILE_DIR:my_app>/"
+#     # ... 复制其他需要的 DLL
 # )
