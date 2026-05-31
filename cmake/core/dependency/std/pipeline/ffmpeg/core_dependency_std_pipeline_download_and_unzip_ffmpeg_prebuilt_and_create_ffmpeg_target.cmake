@@ -26,8 +26,11 @@
 # DOWNLOAD_DIR = "${CMAKE_BINARY_DIR}/downloads"
 # TARGET_NAME = "FFmpeg"
 
-
-
+# ================================================
+#           return variable
+# ================================================
+# ${RETURN_VARIABLE_PREFIX} = "CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET"
+# ${RETURN_VARIABLE_PREFIX}_
 
 function(core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target)
     get_filename_component(_current_dir ${CMAKE_CURRENT_FUNCTION_LIST_FILE} PATH)
@@ -142,7 +145,7 @@ function(core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_cre
     )
     
     # ================================================
-    # export variables to parent scope
+    # return variables 
     # ================================================
     set(FFMPEG_ROOT ${extracted_dir} PARENT_SCOPE)
     set(FFMPEG_DOWNLOAD_DIR ${FFMPEG_DOWNLOAD_DIR} PARENT_SCOPE)

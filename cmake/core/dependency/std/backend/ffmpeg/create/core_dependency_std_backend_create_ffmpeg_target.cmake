@@ -26,9 +26,6 @@
 # IS_GLOBAL_MODE = FALSE
 # IS_SILENT_MODE = FALSE
 
-# ====== core_dependency_std_backend_create_ffmpeg_target.cmake
-# 简化版 - 只支持 Windows 动态库
-
 function(core_dependency_std_backend_create_ffmpeg_target)
     set(options "")
     set(one_value_args FFMPEG_DIR TARGET_NAME IS_GLOBAL_MODE IS_SILENT_MODE)
