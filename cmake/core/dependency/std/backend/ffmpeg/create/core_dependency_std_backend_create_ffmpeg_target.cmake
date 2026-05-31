@@ -30,7 +30,9 @@
 
 function(core_dependency_std_backend_create_ffmpeg_target)
     set(options)  # 清空 options
-    set(one_value_args FFMPEG_DIR TARGET_NAME IS_GLOBAL IS_SILENT_MODE)
+    set(one_value_args  FFMPEG_DIR  TARGET_NAME 
+        IS_GLOBAL_MODE  IS_SILENT_MODE
+    )
     set(multi_value_args "")
     cmake_parse_arguments(FFMPEG "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
     
