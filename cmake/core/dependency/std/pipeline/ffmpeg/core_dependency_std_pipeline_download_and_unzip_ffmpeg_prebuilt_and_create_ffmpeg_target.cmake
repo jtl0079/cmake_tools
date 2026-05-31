@@ -147,6 +147,9 @@ function(core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_cre
     set(FFMPEG_ROOT ${extracted_dir} PARENT_SCOPE)
     set(FFMPEG_DOWNLOAD_DIR ${FFMPEG_DOWNLOAD_DIR} PARENT_SCOPE)
     set(FFMPEG_ZIP_PATH ${FFMPEG_ZIP_PATH} PARENT_SCOPE)
+    set(FFMPEG_INCLUDE_DIR ${include_dir} PARENT_SCOPE)  
+    set(FFMPEG_LIB_DIR ${lib_dir} PARENT_SCOPE)          
+    set(FFMPEG_BIN_DIR ${bin_dir} PARENT_SCOPE)
     set(FFMPEG_PIPELINE_SUCCESS TRUE PARENT_SCOPE)
     
     if(NOT is_silent)
