@@ -26,8 +26,6 @@
 # TARGET_NAME = "FFmpeg"
 # EXECUTABLE_TARGET = "${PROJECT_NAME}"
 
-
-
 function(core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target_and_copy_dlls)
     # 获取当前脚本目录
     get_filename_component(_current_dir ${CMAKE_CURRENT_FUNCTION_LIST_FILE} PATH)
