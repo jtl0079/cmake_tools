@@ -2,13 +2,29 @@
 # ====================================
 #			explanation
 # ====================================
-#
+# 完整的 FFmpeg 集成流程：
+# 1. 下载 FFmpeg 预编译包
+# 2. 解压到指定目录
+# 3. 创建 CMake 目标供项目使用
 #
 # ====================================
 #           parameters
 # ====================================
-
-
+#   FILENAME: 可选，完整文件名（默认 ffmpeg-n8.1-latest-win64-gpl-shared-8.1.zip）
+#   DOWNLOAD_DIR: 可选，下载目录（默认 ${CMAKE_BINARY_DIR}/downloads）
+#   TARGET_NAME: 可选，目标名称前缀（默认 FFmpeg）
+#   IS_SILENT_MODE: 可选，安静模式（TRUE/FALSE，默认 FALSE）
+#   IS_GLOBAL_MODE: 可选，创建全局目标（TRUE/FALSE，默认 FALSE）
+#
+# ====================================
+#           default variable
+# ====================================
+# IS_SILENT_MODE = FALSE
+# IS_GLOBAL_MODE = FALSE
+#
+# FILENAME = "ffmpeg-n8.1-latest-win64-gpl-shared-8.1.zip"
+# DOWNLOAD_DIR = "${CMAKE_BINARY_DIR}/downloads"
+# TARGET_NAME = "FFmpeg"
 
 
 function(core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target)
@@ -22,21 +38,38 @@ function(core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_cre
     cmake_parse_arguments(PIPELINE "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
     
     # ====================================
-    #           default variable
-    # ====================================
-    # IS_SILENT_MODE = FALSE
-    # IS_GLOBAL_MODE = FALSE
-    #
-    # FILENAME = "ffmpeg-n8.1-latest-win64-gpl-shared-8.1.zip"
-    # DOWNLOAD_DIR = "${CMAKE_BINARY_DIR}/downloads"
-    # TARGET_NAME = "FFmpeg"
+    #    convert boolean variables
     # ====================================
 
+    # convert IS_SILENT_MODE to boolean
+    if(PIPELINE_IS_SILENT_MODE AND 
+       (PIPELINE_IS_SILENT_MODE STREQUAL "TRUE" OR 
+        PIPELINE_IS_SILENT_MODE STREQUAL "YES" OR 
+        PIPELINE_IS_SILENT_MODE STREQUAL "1" OR
+        PIPELINE_IS_SILENT_MODE STREQUAL "ON"))
+        set(is_silent TRUE)
+    else()
+        set(is_silent FALSE)
+    endif()
 
+    # convert IS_GLOBAL_MODE to boolean
+    if(PIPELINE_IS_GLOBAL_MODE AND 
+       (PIPELINE_IS_GLOBAL_MODE STREQUAL "TRUE" OR 
+        PIPELINE_IS_GLOBAL_MODE STREQUAL "YES" OR 
+        PIPELINE_IS_GLOBAL_MODE STREQUAL "1" OR
+        PIPELINE_IS_GLOBAL_MODE STREQUAL "ON"))
+        set(is_global TRUE)
+    else()
+        set(is_global FALSE)
+    endif()
 
     # ================================================
-    # step 1 : downlaod FFmpeg
+    # step 1 : download FFmpeg
     # ================================================
+    
+    if(NOT is_silent)
+        message(STATUS "[Pipeline] Step 1/3: Downloading FFmpeg...")
+    endif()
     
     core_dependency_std_backend_download_ffmpeg_prebuilt(
         FILENAME ${PIPELINE_FILENAME}
@@ -44,33 +77,42 @@ function(core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_cre
         IS_SILENT_MODE ${PIPELINE_IS_SILENT_MODE}
     )
     
+    # check download status
+    if(NOT FFMPEG_DOWNLOAD_SUCCESS)
+        if(NOT is_silent)
+            message(FATAL_ERROR "[Pipeline] Download failed, cannot continue")
+        else()
+            message(FATAL_ERROR "FFmpeg download failed")
+        endif()
+    endif()
+    
     # ================================================
-    # step 2: 解压 FFmpeg
+    # step 2: extract FFmpeg
     # ================================================
-    if(NOT PIPELINE_SILENT)
+    if(NOT is_silent)
         message(STATUS "[Pipeline] Step 2/3: Extracting FFmpeg...")
     endif()
     
-    # 确定解压目录（去掉 .zip 扩展名）
+    # get extract directory (remove .zip extension)
     get_filename_component(zip_filename ${FFMPEG_ZIP_PATH} NAME)
     string(REGEX REPLACE "\\.zip$" "" extracted_dir_name "${zip_filename}")
     set(extracted_dir "${FFMPEG_DOWNLOAD_DIR}/${extracted_dir_name}")
     
-    # 如果已经解压过，跳过
+    # skip if already extracted
     if(NOT EXISTS "${extracted_dir}")
         file(ARCHIVE_EXTRACT INPUT "${FFMPEG_ZIP_PATH}" DESTINATION "${FFMPEG_DOWNLOAD_DIR}")
-        if(NOT PIPELINE_SILENT)
+        if(NOT is_silent)
             message(STATUS "[Pipeline] Step 2/3: Extracted to: ${extracted_dir}")
         endif()
     else()
-        if(NOT PIPELINE_SILENT)
+        if(NOT is_silent)
             message(STATUS "[Pipeline] Step 2/3: Already extracted: ${extracted_dir}")
         endif()
     endif()
     
-    # 验证解压后的目录结构
+    # verify extracted directory structure
     if(NOT EXISTS "${extracted_dir}/include" OR NOT EXISTS "${extracted_dir}/lib")
-        if(NOT PIPELINE_SILENT)
+        if(NOT is_silent)
             message(FATAL_ERROR "[Pipeline] Extraction failed: Invalid FFmpeg directory structure")
         else()
             message(FATAL_ERROR "FFmpeg extraction failed: Invalid directory structure")
@@ -81,48 +123,63 @@ function(core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_cre
     # step 3: create CMake Target
     # ================================================    
 
+    if(NOT is_silent)
+        message(STATUS "[Pipeline] Step 3/3: Creating CMake targets...")
+    endif()
+    
     core_dependency_std_backend_create_ffmpeg_target(
-        FFMPEG_DIR  ${extracted_dir}
+        FFMPEG_DIR ${extracted_dir}
         TARGET_NAME ${PIPELINE_TARGET_NAME}
-        GLOBAL
+        IS_GLOBAL_MODE ${PIPELINE_IS_GLOBAL_MODE}
         IS_SILENT_MODE ${PIPELINE_IS_SILENT_MODE}
     )
     
     # ================================================
-    # 输出变量到父作用域
+    # export variables to parent scope
     # ================================================
     set(FFMPEG_ROOT ${extracted_dir} PARENT_SCOPE)
     set(FFMPEG_DOWNLOAD_DIR ${FFMPEG_DOWNLOAD_DIR} PARENT_SCOPE)
     set(FFMPEG_ZIP_PATH ${FFMPEG_ZIP_PATH} PARENT_SCOPE)
     set(FFMPEG_PIPELINE_SUCCESS TRUE PARENT_SCOPE)
     
+    if(NOT is_silent)
+        message(STATUS "[Pipeline] Pipeline completed successfully!")
+        message(STATUS "  FFmpeg root: ${extracted_dir}")
+        message(STATUS "  Usage: target_link_libraries(your_target PRIVATE ${PIPELINE_TARGET_NAME}::All)")
+    endif()
+    
 endfunction()
 
 
 # ================================================
-# 使用示例
+# usage examples
 # ================================================
 
-# 示例1: 基本使用
+# Example 1: Basic usage (default: non-global, non-silent)
 # core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target()
 # target_link_libraries(my_app PRIVATE FFmpeg::All)
 
-# 示例2: 自定义配置
+# Example 2: Custom configuration with global mode
 # core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target(
 #     FILENAME "ffmpeg-n8.1-latest-win64-gpl-shared-8.1.zip"
 #     DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/third_party"
 #     TARGET_NAME "FFmpeg"
-#     GLOBAL
+#     IS_GLOBAL_MODE TRUE
 # )
 
-# 示例3: 安静模式（适合 CI/CD）
+# Example 3: Silent mode for CI/CD
 # core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target(
-#     SILENT
-#     GLOBAL
+#     IS_SILENT_MODE TRUE
+#     IS_GLOBAL_MODE TRUE
 # )
 
-# 示例4: 自定义目标名称
+# Example 4: Custom target name
 # core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target(
 #     TARGET_NAME "CustomFFmpeg"
 # )
 # target_link_libraries(my_app PRIVATE CustomFFmpeg::All)
+
+# Example 5: Global mode only
+# core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target(
+#     IS_GLOBAL_MODE TRUE
+# )
