@@ -13,7 +13,8 @@
 #   FILENAME: 完整文件名（如 ffmpeg-n8.1-latest-win64-gpl-shared-8.1.zip）
 #   DOWNLOAD_DIR: 指定下载目录
 
-function(cmake_tools_download_ffmpeg_prebuilt)
+
+function(core_dependency_std_backend_download_ffmpeg_prebuilt)
     set(options "")
     set(one_value_args FILENAME DOWNLOAD_DIR)
     set(multi_value_args "")
