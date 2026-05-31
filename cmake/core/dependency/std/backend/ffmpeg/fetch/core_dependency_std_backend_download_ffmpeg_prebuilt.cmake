@@ -1,8 +1,15 @@
+# ====== core_dependency_std_backend_download_ffmpeg_prebuilt.cmake
+# ====================================
 # skeleton: priority=core category=dependency domain=std pattern=backend
+# ====================================
+#			explanation
+# ====================================
+# Only download. 
+# No include/import, no unzip
 #
-# 仅下载 FFmpeg 预编译库（不导入，不解压）
-#
-# 传参
+# ====================================
+#           parameters
+# ====================================
 #   FILENAME: 完整文件名（如 ffmpeg-n8.1-latest-win64-gpl-shared-8.1.zip）
 #   DOWNLOAD_DIR: 指定下载目录
 
