@@ -16,7 +16,7 @@ file(GLOB_RECURSE CMAKE_TOOLS_SRC
 
 # 排除特定目录和文件
 set(EXCLUDE_PATTERNS
-    ".*/test/.*"
+#    ".*/test/.*"
     ".*/tests/.*"
     ".*/deprecated/.*"
     ".*/internal/.*"
