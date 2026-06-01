@@ -2,69 +2,98 @@
 # ====================================
 # skeleton: priority=core category=dependency domain=std pattern=backend
 # ====================================
-#			explanation
+#		explanation
 # ====================================
-# Only download. 
-# No include/import, no unzip
-#
-# ====================================
-#           parameters
-# ====================================
-#   FILENAME: 完整文件名（如 ffmpeg-n8.1-latest-win64-gpl-shared-8.1.zip）
-#   DOWNLOAD_DIR: 指定下载目录
-#   IS_SILENT_MODE: 安静模式（TRUE/FALSE），不输出任何消息（用于测试或静默集成）
+# Only download FFmpeg prebuilt binaries from GitHub releases.
+# No include/import, no unzip. Downloads the specified zip file to the download directory.
 
+# ====================================
+#		parameters
+# ====================================
+# FILENAME        : Full filename of the FFmpeg zip file (e.g., ffmpeg-n8.1-latest-win64-gpl-shared-8.1.zip)
+# DOWNLOAD_DIR    : Directory where the zip file will be downloaded
+# IS_SILENT_MODE  : Suppress informational messages (TRUE/FALSE)
+
+# ====================================
+#		parameter default value
+# ====================================
+# FILENAME        = "ffmpeg-n8.1-latest-win64-gpl-shared-8.1.zip"
+# DOWNLOAD_DIR    = "${CMAKE_BINARY_DIR}/downloads"
+# IS_SILENT_MODE  = FALSE
+
+# ====================================
+#       return variables
+# ====================================
+# RETURN_VAR_PREFIX = CORE_DEPENDENCY_STD_BACKEND_DOWNLOAD_FFMPEG_PREBUILT
+# ${RETURN_VAR_PREFIX}_ZIP_PATH     = Full path to the downloaded zip file
+# ${RETURN_VAR_PREFIX}_DOWNLOAD_DIR = Directory where zip file is stored
+# ${RETURN_VAR_PREFIX}_SUCCESS      = TRUE if download succeeded or file already exists
 
 function(core_dependency_std_backend_download_ffmpeg_prebuilt)
+	
+	# ====================================
+	#		parameters
+	# ====================================
     set(options)  
     set(one_value_args FILENAME DOWNLOAD_DIR IS_SILENT_MODE)
     set(multi_value_args "")
     cmake_parse_arguments(FFMPEG "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
     
-    # ================================================
-    # 文件名配置
-    # ================================================
+	# ====================================
+	#		parameter default value
+	# ====================================
+    # Set default FILENAME
     if(NOT FFMPEG_FILENAME)
         set(FFMPEG_FILENAME "ffmpeg-n8.1-latest-win64-gpl-shared-8.1.zip")
     endif()
     
+    # Set download URL
     set(ffmpeg_url "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/${FFMPEG_FILENAME}")
     
-    # ================================================
-    #       where the place downloading 
-    # ================================================
+    # Set default DOWNLOAD_DIR
     if(FFMPEG_DOWNLOAD_DIR)
         set(root_dir ${FFMPEG_DOWNLOAD_DIR})
     else()
-        set(root_dir "${CMAKE_BINARY_DIR}/downloads")   # 默认下载目录
+        set(root_dir "${CMAKE_BINARY_DIR}/downloads")
     endif()
     
     set(zip_path "${root_dir}/${FFMPEG_FILENAME}")
     
+    # Create download directory if it doesn't exist
     file(MAKE_DIRECTORY "${root_dir}")
     
-    # 初始化下载状态
+    # Initialize download status
     set(download_success FALSE)
     
-    # 转换 IS_SILENT_MODE 为布尔值
-    if(FFMPEG_IS_SILENT_MODE AND (FFMPEG_IS_SILENT_MODE STREQUAL "TRUE" OR FFMPEG_IS_SILENT_MODE STREQUAL "YES" OR FFMPEG_IS_SILENT_MODE STREQUAL "1"))
+    # Parse IS_SILENT_MODE
+    if(FFMPEG_IS_SILENT_MODE AND 
+       (FFMPEG_IS_SILENT_MODE STREQUAL "TRUE" OR 
+        FFMPEG_IS_SILENT_MODE STREQUAL "YES" OR 
+        FFMPEG_IS_SILENT_MODE STREQUAL "1" OR
+        FFMPEG_IS_SILENT_MODE STREQUAL "ON"))
         set(is_silent TRUE)
     else()
         set(is_silent FALSE)
     endif()
     
+	# ====================================
+	#		check if file already exists
+	# ====================================
     if(EXISTS "${zip_path}")
         set(download_success TRUE)
         if(NOT is_silent)
             message(STATUS "FFmpeg zip already exists: ${zip_path}")
         endif()
     else()
+	# ====================================
+	#		download file
+	# ====================================
         if(NOT is_silent)
             message(STATUS "Downloading ${FFMPEG_FILENAME}...")
             message(STATUS "URL: ${ffmpeg_url}")
         endif()
         
-        # 根据是否静默模式决定是否显示进度条
+        # Download based on silent mode
         if(is_silent)
             file(DOWNLOAD "${ffmpeg_url}" "${zip_path}" 
                 TIMEOUT 600
@@ -96,12 +125,37 @@ function(core_dependency_std_backend_download_ffmpeg_prebuilt)
         endif()
     endif()
     
-    # ====================================
-    #       PARENT_SCOPE Variable
-    # ====================================
-    set(FFMPEG_ZIP_PATH ${zip_path} PARENT_SCOPE)
-    set(FFMPEG_DOWNLOAD_DIR ${root_dir} PARENT_SCOPE)
-    set(FFMPEG_DOWNLOAD_SUCCESS ${download_success} PARENT_SCOPE)
+	# ====================================
+	#       return variables
+	# ====================================
+    set(RETURN_VAR_PREFIX "CORE_DEPENDENCY_STD_BACKEND_DOWNLOAD_FFMPEG_PREBUILT")
+    
+    set(${RETURN_VAR_PREFIX}_ZIP_PATH "${zip_path}")
+    set(${RETURN_VAR_PREFIX}_DOWNLOAD_DIR "${root_dir}")
+    set(${RETURN_VAR_PREFIX}_SUCCESS "${download_success}")
+    
+    set(${RETURN_VAR_PREFIX}_ZIP_PATH "${zip_path}" PARENT_SCOPE)
+    set(${RETURN_VAR_PREFIX}_DOWNLOAD_DIR "${root_dir}" PARENT_SCOPE)
+    set(${RETURN_VAR_PREFIX}_SUCCESS "${download_success}" PARENT_SCOPE)
+
+	# ====================================
+	#       print return variables
+	# ====================================
+    if(NOT is_silent AND download_success)
+        message(STATUS "")
+        message(STATUS "[${RETURN_VAR_PREFIX} - print return variables]")
+        
+        foreach(temp_print_return_var IN ITEMS
+            "${RETURN_VAR_PREFIX}_ZIP_PATH"
+            "${RETURN_VAR_PREFIX}_DOWNLOAD_DIR"
+            "${RETURN_VAR_PREFIX}_SUCCESS"
+        )
+            message(STATUS "${temp_print_return_var} = ${${temp_print_return_var}}")
+        endforeach()
+    elseif(NOT is_silent AND NOT download_success)
+        message(WARNING "[${RETURN_VAR_PREFIX}] Download failed!")
+    endif()
+    
 endfunction()
 
 
@@ -109,19 +163,19 @@ endfunction()
 # Usage examples:
 # ================================================
 
-# 正常模式（有输出）:
+# Example 1: Normal mode (with output)
 # core_dependency_std_backend_download_ffmpeg_prebuilt()
 # 
-# 安静模式（无输出）:
+# Example 2: Silent mode (no output)
 # core_dependency_std_backend_download_ffmpeg_prebuilt(IS_SILENT_MODE TRUE)
 # 
-# 指定文件名:
+# Example 3: Specify filename
 # core_dependency_std_backend_download_ffmpeg_prebuilt(FILENAME "ffmpeg-n8.1-latest-win64-gpl-shared-8.1.zip")
 # 
-# 指定下载目录:
+# Example 4: Specify download directory
 # core_dependency_std_backend_download_ffmpeg_prebuilt(DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/third_party")
 # 
-# 组合使用:
+# Example 5: Combined usage
 # core_dependency_std_backend_download_ffmpeg_prebuilt(
 #     IS_SILENT_MODE TRUE 
 #     DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/third_party"

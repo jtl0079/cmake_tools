@@ -4,8 +4,7 @@ A .cmake files should record the info below as the comment at top:
 # ====================================
 #		explanation
 # ====================================
-# Search the DLL releated to the ffmpeg in the dir,
-# and paste it to another dir
+# explain...
 
 # ====================================
 #		parameters
@@ -45,6 +44,12 @@ function()
 	#       return variables
 	# ====================================
 	set(RETURN_VAR_PREFIX ${function_name})
+
+	set(${RETURN_VAR_PREFIX}_VAR1 "value 1")	# For print
+	set(${RETURN_VAR_PREFIX}_VAR2 "value 2")
+
+	set(${RETURN_VAR_PREFIX}_VAR1 "value 1" PARENT_SCOPE)	# For return 
+	set(${RETURN_VAR_PREFIX}_VAR2 "value 2" PARENT_SCOPE)
 
 
 	# ====================================
