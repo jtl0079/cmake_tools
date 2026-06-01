@@ -10,6 +10,5 @@ FetchContent_Declare(
   GIT_TAG  main
 )
 
-
 FetchContent_MakeAvailable(cmake_tools)
 ```
