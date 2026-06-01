@@ -19,7 +19,7 @@ A .cmake files should record the info below as the comment at top:
 
 
 # ====================================
-#       return variable
+#       return variables
 # ====================================
 # RETURN_VAR_PREFIX = ${function_name}
 # ${RETURN_VAR_PREFIX}_VAR1 = value
@@ -42,14 +42,25 @@ function()
 
 
 	# ====================================
-	#       return variable
+	#       return variables
 	# ====================================
+	set(RETURN_VAR_PREFIX ${function_name})
 
 
 	# ====================================
-	#       print return variable
+	#       print return variables
 	# ====================================
+	if(NOT IS_SILENT_MODE){
+		message(STATUS "")
+		message(STATUS "[${RETURN_VAR_PREFIX} - print return variables]")
 
+		foreach(temp_print_return_var IN ITEMS
+			"${RETURN_VAR_PREFIX}_VAR1"
+			"${RETURN_VAR_PREFIX}_VAR2"
+		)
+			message(STATUS "${temp_print_return_var} = ${${temp_print_return_var}}")
+		endforeach()
+	}
 
 	
 endfunction()

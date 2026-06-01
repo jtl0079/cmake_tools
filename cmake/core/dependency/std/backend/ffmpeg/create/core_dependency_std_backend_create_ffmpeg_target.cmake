@@ -1,13 +1,13 @@
 ﻿# ====== core_dependency_std_backend_create_ffmpeg_target.cmake
 # ====================================
-#			explanation
+#		explanation
 # ====================================
 # Create CMake interface targets based on an existing FFmpeg directory structure.
 # The FFmpeg directory should contain bin/, lib/, and include/ subdirectories.
 # Creates individual targets for each FFmpeg library and a combined 'All' target.
 
 # ====================================
-#           parameters
+#		parameters
 # ====================================
 # FFMPEG_DIR      : Root directory of extracted FFmpeg (contains bin/, lib/, include/)
 # TARGET_NAME     : Prefix name for CMake targets (default: FFmpeg)
@@ -15,7 +15,7 @@
 # IS_SILENT_MODE  : Suppress informational messages (TRUE/FALSE)
 
 # ====================================
-#           parameter default value
+#		parameter default value
 # ====================================
 # FFMPEG_DIR      = (no default, required parameter)
 # TARGET_NAME     = FFmpeg
@@ -23,10 +23,10 @@
 # IS_SILENT_MODE  = FALSE
 
 # ====================================
-#       return variable
+#       return variables
 # ====================================
-# RETURN_VAR_PREFIX = "CORE_DEPENDENCY_STD_BACKEND_CREATE_FFMPEG_TARGET"
-# ${RETURN_VAR_PREFIX}_ROOT           = Root directory of FFmpeg
+# RETURN_VAR_PREFIX = CORE_DEPENDENCY_STD_BACKEND_CREATE_FFMPEG_TARGET
+# ${RETURN_VAR_PREFIX}_FFMPEG_ROOT_DIR = Root directory of FFmpeg
 # ${RETURN_VAR_PREFIX}_INCLUDE        = Include directory
 # ${RETURN_VAR_PREFIX}_LIB            = Library directory
 # ${RETURN_VAR_PREFIX}_BIN            = Bin directory (DLLs)
@@ -158,7 +158,7 @@ function(core_dependency_std_backend_create_ffmpeg_target)
     target_include_directories(${FFMPEG_TARGET_NAME}::All INTERFACE "${include_dir}")
     
 	# ====================================
-	#       return variable
+	#       return variables
 	# ====================================
     set(RETURN_VAR_PREFIX "CORE_DEPENDENCY_STD_BACKEND_CREATE_FFMPEG_TARGET")
     set(${RETURN_VAR_PREFIX}_FFMPEG_ROOT_DIR "${FFMPEG_FFMPEG_DIR}" PARENT_SCOPE)
@@ -166,16 +166,26 @@ function(core_dependency_std_backend_create_ffmpeg_target)
     set(${RETURN_VAR_PREFIX}_LIB "${lib_dir}" PARENT_SCOPE)
     set(${RETURN_VAR_PREFIX}_BIN "${bin_dir}" PARENT_SCOPE)
     set(${RETURN_VAR_PREFIX}_TARGETS_CREATED TRUE PARENT_SCOPE)
-    
+
 	# ====================================
-	#       print return variable
+	#       print return variables
 	# ====================================
     if(NOT is_silent)
-        message(STATUS "[${RETURN_VAR_PREFIX} - return variables]")
-        message(STATUS "${RETURN_VAR_PREFIX}_FFMPEG_ROOT_DIR = ${"${RETURN_VAR_PREFIX}"}_FFMPEG_ROOT_DIR")
-        message(STATUS "  Libraries: ${lib_dir}")
+        message(STATUS "")
+        message(STATUS "[${RETURN_VAR_PREFIX} - print return variables]")
+        
+        foreach(temp_print_return_var IN ITEMS
+            "${RETURN_VAR_PREFIX}_FFMPEG_ROOT_DIR"
+            "${RETURN_VAR_PREFIX}_INCLUDE"
+            "${RETURN_VAR_PREFIX}_LIB"
+            "${RETURN_VAR_PREFIX}_BIN"
+            "${RETURN_VAR_PREFIX}_TARGETS_CREATED"
+        )
+            message(STATUS "${temp_print_return_var} = ${${temp_print_return_var}}")
+        endforeach()
+        
         if(EXISTS "${bin_dir}")
-            message(STATUS "  DLLs (runtime): ${bin_dir}")
+            message(STATUS "")
             message(STATUS "  NOTE: You need to copy DLLs from ${bin_dir} to your executable directory!")
         endif()
     endif()
