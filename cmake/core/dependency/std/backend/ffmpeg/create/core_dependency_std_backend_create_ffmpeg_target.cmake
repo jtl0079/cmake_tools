@@ -161,6 +161,13 @@ function(core_dependency_std_backend_create_ffmpeg_target)
 	#       return variables
 	# ====================================
     set(RETURN_VAR_PREFIX "CORE_DEPENDENCY_STD_BACKEND_CREATE_FFMPEG_TARGET")
+
+    set(${RETURN_VAR_PREFIX}_FFMPEG_ROOT_DIR "${FFMPEG_FFMPEG_DIR}")
+    set(${RETURN_VAR_PREFIX}_INCLUDE "${include_dir}")
+    set(${RETURN_VAR_PREFIX}_LIB "${lib_dir}")
+    set(${RETURN_VAR_PREFIX}_BIN "${bin_dir}")
+    set(${RETURN_VAR_PREFIX}_TARGETS_CREATED TRUE)
+
     set(${RETURN_VAR_PREFIX}_FFMPEG_ROOT_DIR "${FFMPEG_FFMPEG_DIR}" PARENT_SCOPE)
     set(${RETURN_VAR_PREFIX}_INCLUDE "${include_dir}" PARENT_SCOPE)
     set(${RETURN_VAR_PREFIX}_LIB "${lib_dir}" PARENT_SCOPE)
