@@ -2,39 +2,50 @@
 # ====================================
 #			explanation
 # ====================================
-# Create a CMake target based on the existing FFmpeg directory.
-#
-#
+# Create CMake interface targets based on an existing FFmpeg directory structure.
+# The FFmpeg directory should contain bin/, lib/, and include/ subdirectories.
+# Creates individual targets for each FFmpeg library and a combined 'All' target.
+
 # ====================================
 #           parameters
 # ====================================
-#   FFMPEG_DIR: FFmpeg 解压后的根目录（包含 bin/, lib/, include/）
-#   TARGET_NAME: 可选，目标名称前缀（默认 FFmpeg）
-#   IS_GLOBAL_MODE: 可选，创建全局目标
-#   IS_SILENT_MODE: 可选，安静模式（不输出消息）
-#
-# 创建的目标:
-#   FFmpeg::avcodec, FFmpeg::avformat, ... (各个库)
-#   FFmpeg::All (聚合所有库)
-#
-#
+# FFMPEG_DIR      : Root directory of extracted FFmpeg (contains bin/, lib/, include/)
+# TARGET_NAME     : Prefix name for CMake targets (default: FFmpeg)
+# IS_GLOBAL_MODE  : Create global targets visible everywhere (TRUE/FALSE)
+# IS_SILENT_MODE  : Suppress informational messages (TRUE/FALSE)
+
 # ====================================
-#           default variable
+#           parameter default value
 # ====================================
-# FFMPEG_DIR = 
-# TARGET_NAME = FFmpeg
-# IS_GLOBAL_MODE = FALSE
-# IS_SILENT_MODE = FALSE
+# FFMPEG_DIR      = (no default, required parameter)
+# TARGET_NAME     = FFmpeg
+# IS_GLOBAL_MODE  = FALSE
+# IS_SILENT_MODE  = FALSE
+
+# ====================================
+#       return variable
+# ====================================
+# RETURN_VAR_PREFIX = "CORE_DEPENDENCY_STD_BACKEND_CREATE_FFMPEG_TARGET"
+# ${RETURN_VAR_PREFIX}_ROOT           = Root directory of FFmpeg
+# ${RETURN_VAR_PREFIX}_INCLUDE        = Include directory
+# ${RETURN_VAR_PREFIX}_LIB            = Library directory
+# ${RETURN_VAR_PREFIX}_BIN            = Bin directory (DLLs)
+# ${RETURN_VAR_PREFIX}_TARGETS_CREATED = TRUE if targets were created successfully
 
 function(core_dependency_std_backend_create_ffmpeg_target)
+	
+	# ====================================
+	#		parameters
+	# ====================================
     set(options "")
     set(one_value_args FFMPEG_DIR TARGET_NAME IS_GLOBAL_MODE IS_SILENT_MODE)
     set(multi_value_args "")
     cmake_parse_arguments(FFMPEG "${options}" "${one_value_args}" "${multi_value_args}" ${ARGN})
     
-    # ================================================
-    #   validate param
-    # ================================================
+	# ====================================
+	#		parameter default value
+	# ====================================
+    # Validate required parameters
     if(NOT FFMPEG_FFMPEG_DIR)
         message(FATAL_ERROR "FFMPEG_DIR is required")
     endif()
@@ -43,11 +54,12 @@ function(core_dependency_std_backend_create_ffmpeg_target)
         message(FATAL_ERROR "FFMPEG_DIR does not exist: ${FFMPEG_FFMPEG_DIR}")
     endif()
     
+    # Set default TARGET_NAME
     if(NOT FFMPEG_TARGET_NAME)
         set(FFMPEG_TARGET_NAME "FFmpeg")
     endif()
 
-    # 解析 IS_GLOBAL_MODE
+    # Parse IS_GLOBAL_MODE
     if(FFMPEG_IS_GLOBAL_MODE AND 
        (FFMPEG_IS_GLOBAL_MODE STREQUAL "TRUE" OR 
         FFMPEG_IS_GLOBAL_MODE STREQUAL "YES" OR 
@@ -60,7 +72,7 @@ function(core_dependency_std_backend_create_ffmpeg_target)
         set(global_flag "")
     endif()
     
-    # 解析 IS_SILENT_MODE
+    # Parse IS_SILENT_MODE
     if(FFMPEG_IS_SILENT_MODE AND 
        (FFMPEG_IS_SILENT_MODE STREQUAL "TRUE" OR 
         FFMPEG_IS_SILENT_MODE STREQUAL "YES" OR 
@@ -71,14 +83,14 @@ function(core_dependency_std_backend_create_ffmpeg_target)
         set(is_silent FALSE)
     endif()
     
-    # ================================================
-    # set dir path
-    # ================================================
+	# ====================================
+	#		set directory paths
+	# ====================================
     set(include_dir "${FFMPEG_FFMPEG_DIR}/include")
     set(lib_dir "${FFMPEG_FFMPEG_DIR}/lib")
     set(bin_dir "${FFMPEG_FFMPEG_DIR}/bin")
     
-    # 验证必要目录
+    # Validate required directories
     if(NOT EXISTS "${include_dir}")
         message(FATAL_ERROR "Include directory not found: ${include_dir}")
     endif()
@@ -86,9 +98,9 @@ function(core_dependency_std_backend_create_ffmpeg_target)
         message(FATAL_ERROR "Lib directory not found: ${lib_dir}")
     endif()
     
-    # ================================================
-    # FFmpeg lib list
-    # ================================================
+	# ====================================
+	#		FFmpeg library list
+	# ====================================
     set(ffmpeg_libs
         avcodec
         avdevice
@@ -99,11 +111,10 @@ function(core_dependency_std_backend_create_ffmpeg_target)
         swscale
     )
     
-    # ================================================
-    # 为每个库创建 IMPORTED 目标
-    # ================================================
+	# ====================================
+	#		create imported target for each library
+	# ====================================
     foreach(lib_name ${ffmpeg_libs})
-        # 查找 .lib 文件
         set(lib_file "${lib_dir}/${lib_name}.lib")
         
         if(NOT EXISTS "${lib_file}")
@@ -113,10 +124,9 @@ function(core_dependency_std_backend_create_ffmpeg_target)
             continue()
         endif()
         
-        # 创建 IMPORTED 目标
+        # Create IMPORTED target
         add_library(${FFMPEG_TARGET_NAME}::${lib_name} UNKNOWN IMPORTED ${global_flag})
         
-        # 关键：只设置 .lib 文件，不设置 DLL
         set_target_properties(${FFMPEG_TARGET_NAME}::${lib_name} PROPERTIES
             IMPORTED_LOCATION "${lib_file}"
             INTERFACE_INCLUDE_DIRECTORIES "${include_dir}"
@@ -127,12 +137,12 @@ function(core_dependency_std_backend_create_ffmpeg_target)
         endif()
     endforeach()
     
-    # ================================================
-    # create target FFmpeg::All
-    # ================================================
+	# ====================================
+	#		create aggregate target FFmpeg::All
+	# ====================================
     add_library(${FFMPEG_TARGET_NAME}::All INTERFACE IMPORTED ${global_flag})
     
-    # 收集所有成功创建的库
+    # Collect all successfully created libraries
     set(all_libs "")
     foreach(lib_name ${ffmpeg_libs})
         if(TARGET ${FFMPEG_TARGET_NAME}::${lib_name})
@@ -147,23 +157,27 @@ function(core_dependency_std_backend_create_ffmpeg_target)
     target_link_libraries(${FFMPEG_TARGET_NAME}::All INTERFACE ${all_libs})
     target_include_directories(${FFMPEG_TARGET_NAME}::All INTERFACE "${include_dir}")
     
-    # ================================================
-    # return 
-    # ================================================
-    set(${FFMPEG_TARGET_NAME}_ROOT ${FFMPEG_FFMPEG_DIR} PARENT_SCOPE)
-    set(${FFMPEG_TARGET_NAME}_INCLUDE ${include_dir} PARENT_SCOPE)
-    set(${FFMPEG_TARGET_NAME}_LIB ${lib_dir} PARENT_SCOPE)
-    set(${FFMPEG_TARGET_NAME}_BIN ${bin_dir} PARENT_SCOPE)
-    set(${FFMPEG_TARGET_NAME}_TARGETS_CREATED TRUE PARENT_SCOPE)
+	# ====================================
+	#       return variable
+	# ====================================
+    set(RETURN_VAR_PREFIX "CORE_DEPENDENCY_STD_BACKEND_CREATE_FFMPEG_TARGET")
+    set(${RETURN_VAR_PREFIX}_FFMPEG_ROOT_DIR "${FFMPEG_FFMPEG_DIR}" PARENT_SCOPE)
+    set(${RETURN_VAR_PREFIX}_INCLUDE "${include_dir}" PARENT_SCOPE)
+    set(${RETURN_VAR_PREFIX}_LIB "${lib_dir}" PARENT_SCOPE)
+    set(${RETURN_VAR_PREFIX}_BIN "${bin_dir}" PARENT_SCOPE)
+    set(${RETURN_VAR_PREFIX}_TARGETS_CREATED TRUE PARENT_SCOPE)
     
+	# ====================================
+	#       print return variable
+	# ====================================
     if(NOT is_silent)
-        message(STATUS "FFmpeg targets created successfully!")
-        message(STATUS "  Include: ${include_dir}")
+        message(STATUS "[${RETURN_VAR_PREFIX} - return variables]")
+        message(STATUS "${RETURN_VAR_PREFIX}_FFMPEG_ROOT_DIR = ${"${RETURN_VAR_PREFIX}"}_FFMPEG_ROOT_DIR")
         message(STATUS "  Libraries: ${lib_dir}")
         if(EXISTS "${bin_dir}")
             message(STATUS "  DLLs (runtime): ${bin_dir}")
             message(STATUS "  NOTE: You need to copy DLLs from ${bin_dir} to your executable directory!")
         endif()
     endif()
+    
 endfunction()
-
