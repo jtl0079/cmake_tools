@@ -15,7 +15,7 @@ include(FetchContent)
 
 FetchContent_Declare(
     cmake_tools
-    GIT_REPOSITORY https://github.com/jtl0079/cmake_tools.git
+    GIT_REPOSITORY https://github.com/alims-engineering/cmake_tools.git
     GIT_TAG main
 )
 
@@ -27,7 +27,7 @@ FetchContent_MakeAvailable(cmake_tools)
 Clone the repository:
 
 ```bash
-git clone https://github.com/jtl0079/cmake_tools.git "/AAA_Alims_Core/cmake_tools"
+git clone https://github.com/alims-engineering/cmake_tools.git "/AAA_Alims_Core/cmake_tools"
 ```
 
 Then add the following line to your CMakeLists.txt:
@@ -40,7 +40,7 @@ add_subdirectory("/AAA_Alims_Core/cmake_tools")
 Clone the repository:
 
 ```bash
-git clone https://github.com/jtl0079/cmake_tools.git "C:/AAA_Alims_Core/cmake_tools"
+git clone https://github.com/alims-engineering/cmake_tools.git "C:/AAA_Alims_Core/cmake_tools"
 ```
 
 Then add the following line to your CMakeLists.txt:
