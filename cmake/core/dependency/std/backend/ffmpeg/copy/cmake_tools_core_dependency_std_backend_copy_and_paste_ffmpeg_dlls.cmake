@@ -1,4 +1,4 @@
-﻿# ====== core_dependency_std_backend_copy_and_paste_ffmpeg_dlls.cmake
+﻿# ====== cmake_tools_core_dependency_std_backend_copy_and_paste_ffmpeg_dlls.cmake
 # ====================================
 #			explanation
 # ====================================
@@ -24,11 +24,24 @@
 # ====================================
 #           return variable
 # ====================================
+# RETURN_VARIABLE_PREFIX =
+#     CMAKE_TOOLS_CORE_DEPENDENCY_STD_BACKEND_COPY_AND_PASTE_FFMPEG_DLLS
 #
-# 
+# ${RETURN_VARIABLE_PREFIX}_SOURCE_DIR
+# ${RETURN_VARIABLE_PREFIX}_DESTINATION_DIR
+# ${RETURN_VARIABLE_PREFIX}_DLL_COUNT
+# ${RETURN_VARIABLE_PREFIX}_DLL_LIST
+# ${RETURN_VARIABLE_PREFIX}_SUCCESS
 
 
-function(core_dependency_std_backend_copy_and_paste_ffmpeg_dlls)
+function(cmake_tools_core_dependency_std_backend_copy_and_paste_ffmpeg_dlls)
+	# ====================================
+	#		pre-variables
+	# ====================================
+	set(this_function_name "CMAKE_TOOLS_CORE_DEPENDENCY_STD_BACKEND_COPY_AND_PASTE_FFMPEG_DLLS")
+	set(RETURN_VARIABLE_PREFIX ${this_function_name})
+
+
 	# ====================================
 	#           parameters
 	# ====================================
@@ -59,6 +72,8 @@ function(core_dependency_std_backend_copy_and_paste_ffmpeg_dlls)
 		if(NOT is_silent)
 			message(WARNING "SOURCE_DIR does not exist: ${DLL_SOURCE_DIR}")
 		endif()
+		set("${RETURN_VARIABLE_PREFIX}_SUCCESS" FALSE PARENT_SCOPE)
+
 		return()
 	endif()
 
@@ -153,10 +168,11 @@ function(core_dependency_std_backend_copy_and_paste_ffmpeg_dlls)
 	# ====================================
 	#           return variable
 	# ====================================
-	set(RETURN_VARIABLE_PREFIX "CORE_DEPENDENCY_STD_BACKEND_COPY_AND_PASTE_FFMPEG_DLLS")
+	list(LENGTH found_dlls dll_count)
+
 	set("${RETURN_VARIABLE_PREFIX}_SOURCE_DIR" "${DLL_SOURCE_DIR}" PARENT_SCOPE)
 	set("${RETURN_VARIABLE_PREFIX}_DESTINATION_DIR" "${DLL_DESTINATION_DIR}" PARENT_SCOPE)
-	set("${RETURN_VARIABLE_PREFIX}_DLL_COUNT" ${found_dlls} PARENT_SCOPE)
+	set("${RETURN_VARIABLE_PREFIX}_DLL_COUNT" ${dll_count} PARENT_SCOPE)
 	set("${RETURN_VARIABLE_PREFIX}_DLL_LIST" ${found_dlls} PARENT_SCOPE)
 	set("${RETURN_VARIABLE_PREFIX}_SUCCESS" TRUE PARENT_SCOPE)
 
@@ -164,12 +180,25 @@ endfunction()
 
 
 # ================================================
-#   example usage
+# usage examples
 # ================================================
 
-# 使用示例：
-# core_dependency_std_backend_copy_and_paste_ffmpeg_dlls(
+# Example 1: Basic usage
+# cmake_tools_core_dependency_std_backend_copy_and_paste_ffmpeg_dlls(
 #     SOURCE_DIR "C:/ffmpeg/bin"
 #     TARGET_NAME CMakeProject1
-#     IS_SILENT_MODE FALSE
+# )
+
+# Example 2: Specify destination directory
+# cmake_tools_core_dependency_std_backend_copy_and_paste_ffmpeg_dlls(
+#     SOURCE_DIR "C:/ffmpeg/bin"
+#     DESTINATION_DIR "${CMAKE_BINARY_DIR}/runtime"
+#     TARGET_NAME CMakeProject1
+# )
+
+# Example 3: Silent mode
+# cmake_tools_core_dependency_std_backend_copy_and_paste_ffmpeg_dlls(
+#     SOURCE_DIR "C:/ffmpeg/bin"
+#     TARGET_NAME CMakeProject1
+#     IS_SILENT_MODE TRUE
 # )

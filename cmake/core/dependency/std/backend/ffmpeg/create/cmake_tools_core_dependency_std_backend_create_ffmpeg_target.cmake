@@ -1,4 +1,4 @@
-﻿# ====== core_dependency_std_backend_create_ffmpeg_target.cmake
+﻿# ====== cmake_tools_core_dependency_std_backend_create_ffmpeg_target.cmake
 # ====================================
 #		explanation
 # ====================================
@@ -25,15 +25,14 @@
 # ====================================
 #       return variables
 # ====================================
-# RETURN_VAR_PREFIX = CORE_DEPENDENCY_STD_BACKEND_CREATE_FFMPEG_TARGET
+# RETURN_VAR_PREFIX = CMAKE_TOOLS_CORE_DEPENDENCY_STD_BACKEND_CREATE_FFMPEG_TARGET
 # ${RETURN_VAR_PREFIX}_FFMPEG_ROOT_DIR = Root directory of FFmpeg
 # ${RETURN_VAR_PREFIX}_INCLUDE        = Include directory
 # ${RETURN_VAR_PREFIX}_LIB            = Library directory
 # ${RETURN_VAR_PREFIX}_BIN            = Bin directory (DLLs)
 # ${RETURN_VAR_PREFIX}_TARGETS_CREATED = TRUE if targets were created successfully
 
-function(core_dependency_std_backend_create_ffmpeg_target)
-	
+function(cmake_tools_core_dependency_std_backend_create_ffmpeg_target)	
 	# ====================================
 	#		parameters
 	# ====================================
@@ -160,7 +159,7 @@ function(core_dependency_std_backend_create_ffmpeg_target)
 	# ====================================
 	#       return variables
 	# ====================================
-    set(RETURN_VAR_PREFIX "CORE_DEPENDENCY_STD_BACKEND_CREATE_FFMPEG_TARGET")
+    set(RETURN_VAR_PREFIX "CMAKE_TOOLS_CORE_DEPENDENCY_STD_BACKEND_CREATE_FFMPEG_TARGET")
 
     set(${RETURN_VAR_PREFIX}_FFMPEG_ROOT_DIR "${FFMPEG_FFMPEG_DIR}")
     set(${RETURN_VAR_PREFIX}_INCLUDE "${include_dir}")

@@ -1,4 +1,4 @@
-# ====== core_dependency_std_backend_download_ffmpeg_prebuilt.cmake
+# ====== cmake_tools_core_dependency_std_backend_download_ffmpeg_prebuilt.cmake
 # ====================================
 # skeleton: priority=core category=dependency domain=std pattern=backend
 # ====================================
@@ -24,12 +24,11 @@
 # ====================================
 #       return variables
 # ====================================
-# RETURN_VAR_PREFIX = CORE_DEPENDENCY_STD_BACKEND_DOWNLOAD_FFMPEG_PREBUILT
-# ${RETURN_VAR_PREFIX}_ZIP_PATH     = Full path to the downloaded zip file
+# RETURN_VAR_PREFIX = CMAKE_TOOLS_CORE_DEPENDENCY_STD_BACKEND_DOWNLOAD_FFMPEG_PREBUILT# ${RETURN_VAR_PREFIX}_ZIP_PATH     = Full path to the downloaded zip file
 # ${RETURN_VAR_PREFIX}_DOWNLOAD_DIR = Directory where zip file is stored
 # ${RETURN_VAR_PREFIX}_SUCCESS      = TRUE if download succeeded or file already exists
 
-function(core_dependency_std_backend_download_ffmpeg_prebuilt)
+function(cmake_tools_core_dependency_std_backend_download_ffmpeg_prebuilt)
 	
 	# ====================================
 	#		parameters
@@ -128,7 +127,7 @@ function(core_dependency_std_backend_download_ffmpeg_prebuilt)
 	# ====================================
 	#       return variables
 	# ====================================
-    set(RETURN_VAR_PREFIX "CORE_DEPENDENCY_STD_BACKEND_DOWNLOAD_FFMPEG_PREBUILT")
+    set(RETURN_VAR_PREFIX "CMAKE_TOOLS_CORE_DEPENDENCY_STD_BACKEND_DOWNLOAD_FFMPEG_PREBUILT")
     
     set(${RETURN_VAR_PREFIX}_ZIP_PATH "${zip_path}")
     set(${RETURN_VAR_PREFIX}_DOWNLOAD_DIR "${root_dir}")
@@ -159,24 +158,26 @@ function(core_dependency_std_backend_download_ffmpeg_prebuilt)
 endfunction()
 
 
-# ================================================
-# Usage examples:
-# ================================================
-
 # Example 1: Normal mode (with output)
-# core_dependency_std_backend_download_ffmpeg_prebuilt()
-# 
+# cmake_tools_core_dependency_std_backend_download_ffmpeg_prebuilt()
+#
 # Example 2: Silent mode (no output)
-# core_dependency_std_backend_download_ffmpeg_prebuilt(IS_SILENT_MODE TRUE)
-# 
+# cmake_tools_core_dependency_std_backend_download_ffmpeg_prebuilt(
+#     IS_SILENT_MODE TRUE
+# )
+#
 # Example 3: Specify filename
-# core_dependency_std_backend_download_ffmpeg_prebuilt(FILENAME "ffmpeg-n8.1-latest-win64-gpl-shared-8.1.zip")
-# 
+# cmake_tools_core_dependency_std_backend_download_ffmpeg_prebuilt(
+#     FILENAME "ffmpeg-n8.1-latest-win64-gpl-shared-8.1.zip"
+# )
+#
 # Example 4: Specify download directory
-# core_dependency_std_backend_download_ffmpeg_prebuilt(DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/third_party")
-# 
+# cmake_tools_core_dependency_std_backend_download_ffmpeg_prebuilt(
+#     DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/third_party"
+# )
+#
 # Example 5: Combined usage
-# core_dependency_std_backend_download_ffmpeg_prebuilt(
-#     IS_SILENT_MODE TRUE 
+# cmake_tools_core_dependency_std_backend_download_ffmpeg_prebuilt(
+#     IS_SILENT_MODE TRUE
 #     DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/third_party"
 # )

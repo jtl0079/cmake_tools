@@ -1,4 +1,4 @@
-﻿# ====== core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target_and_copy_dlls.cmake
+﻿# ====== cmake_tools_core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target_and_copy_dlls.cmake
 # ====================================
 #		explanation
 # ====================================
@@ -33,7 +33,7 @@
 # ====================================
 #       return variables
 # ====================================
-# RETURN_VAR_PREFIX = CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_AND_COPY_DLLS
+# RETURN_VAR_PREFIX = CMAKE_TOOLS_CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_AND_COPY_DLLS
 # ${RETURN_VAR_PREFIX}_ROOT              = Root directory of extracted FFmpeg
 # ${RETURN_VAR_PREFIX}_DOWNLOAD_DIR      = Directory where zip file is stored
 # ${RETURN_VAR_PREFIX}_ZIP_PATH          = Full path to the downloaded zip file
@@ -45,13 +45,24 @@
 # ${RETURN_VAR_PREFIX}_EXECUTABLE_TARGET = Executable target used for DLL copying
 # ${RETURN_VAR_PREFIX}_AUTO_COPY_DLLS    = Whether auto-copy was enabled
 
-function(core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target_and_copy_dlls)
+function(cmake_tools_core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target_and_copy_dlls)   
+
+    # ====================================
+	#		pre-variables
+	# ====================================
+    set(this_function_name  "CMAKE_TOOLS_CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_AND_COPY_DLLS")
+    set(RETURN_VAR_PREFIX   ${this_function_name})
+
+
+    # ====================================
+	#		includes
+	# ====================================
     get_filename_component(_current_dir ${CMAKE_CURRENT_FUNCTION_LIST_FILE} PATH)
     
     # Include dependent functions
-    include(${_current_dir}/core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target.cmake)
-    include(${_current_dir}/../../backend/ffmpeg/copy/core_dependency_std_backend_copy_and_paste_ffmpeg_dlls.cmake)
-    
+    include(${_current_dir}/cmake_tools_core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target.cmake)
+    include(${_current_dir}/../../backend/ffmpeg/copy/cmake_tools_core_dependency_std_backend_copy_and_paste_ffmpeg_dlls.cmake)    
+
 	# ====================================
 	#		parameters
 	# ====================================
@@ -120,7 +131,7 @@ function(core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_cre
     endif()
     
     # Call the base pipeline
-    core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target(
+    cmake_tools_core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target(
         FILENAME ${PIPELINE_FILENAME}
         DOWNLOAD_DIR ${PIPELINE_DOWNLOAD_DIR}
         TARGET_NAME ${PIPELINE_TARGET_NAME}
@@ -129,15 +140,15 @@ function(core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_cre
     )
     
     # Check if successful using the return variable from the pipeline
-    if(NOT CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_SUCCESS)
+    if(NOT CMAKE_TOOLS_CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_SUCCESS)
         message(FATAL_ERROR "FFmpeg pipeline failed!")
     endif()
     
     # Get values from the base pipeline
-    set(FFMPEG_ROOT "${CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_ROOT}")
-    set(FFMPEG_BIN_DIR "${CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_BIN_DIR}")
-    set(FFMPEG_INCLUDE_DIR "${CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_INCLUDE_DIR}")
-    set(FFMPEG_LIB_DIR "${CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_LIB_DIR}")
+    set(FFMPEG_ROOT "${CMAKE_TOOLS_CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_ROOT}")
+    set(FFMPEG_BIN_DIR "${CMAKE_TOOLS_CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_BIN_DIR}")
+    set(FFMPEG_INCLUDE_DIR "${CMAKE_TOOLS_CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_INCLUDE_DIR}")
+    set(FFMPEG_LIB_DIR "${CMAKE_TOOLS_CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_LIB_DIR}")
     
 	# ====================================
 	#		step 4: copy DLLs (optional)
@@ -151,7 +162,7 @@ function(core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_cre
         # Check if target exists
         if(TARGET ${PIPELINE_EXECUTABLE_TARGET})
             # Copy DLLs
-            core_dependency_std_backend_copy_and_paste_ffmpeg_dlls(
+            cmake_tools_core_dependency_std_backend_copy_and_paste_ffmpeg_dlls(
                 SOURCE_DIR "${FFMPEG_BIN_DIR}"
                 TARGET_NAME ${PIPELINE_EXECUTABLE_TARGET}
                 IS_SILENT_MODE ${PIPELINE_IS_SILENT_MODE}
@@ -174,12 +185,11 @@ function(core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_cre
 	# ====================================
 	#       return variables
 	# ====================================
-    set(RETURN_VAR_PREFIX "CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_AND_COPY_DLLS")
     
     # Set current scope variables (for printing)
     set(${RETURN_VAR_PREFIX}_ROOT "${FFMPEG_ROOT}")
-    set(${RETURN_VAR_PREFIX}_DOWNLOAD_DIR "${CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_DOWNLOAD_DIR}")
-    set(${RETURN_VAR_PREFIX}_ZIP_PATH "${CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_ZIP_PATH}")
+    set(${RETURN_VAR_PREFIX}_DOWNLOAD_DIR "${CMAKE_TOOLS_CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_DOWNLOAD_DIR}")
+    set(${RETURN_VAR_PREFIX}_ZIP_PATH "${CMAKE_TOOLS_CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_ZIP_PATH}")    
     set(${RETURN_VAR_PREFIX}_INCLUDE_DIR "${FFMPEG_INCLUDE_DIR}")
     set(${RETURN_VAR_PREFIX}_LIB_DIR "${FFMPEG_LIB_DIR}")
     set(${RETURN_VAR_PREFIX}_BIN_DIR "${FFMPEG_BIN_DIR}")
@@ -190,8 +200,8 @@ function(core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_cre
     
     # Set parent scope variables (for caller)
     set(${RETURN_VAR_PREFIX}_ROOT "${FFMPEG_ROOT}" PARENT_SCOPE)
-    set(${RETURN_VAR_PREFIX}_DOWNLOAD_DIR "${CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_DOWNLOAD_DIR}" PARENT_SCOPE)
-    set(${RETURN_VAR_PREFIX}_ZIP_PATH "${CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_ZIP_PATH}" PARENT_SCOPE)
+    set(${RETURN_VAR_PREFIX}_DOWNLOAD_DIR "${CMAKE_TOOLS_CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_DOWNLOAD_DIR}" PARENT_SCOPE)
+    set(${RETURN_VAR_PREFIX}_ZIP_PATH "${CMAKE_TOOLS_CORE_DEPENDENCY_STD_PIPELINE_DOWNLOAD_AND_UNZIP_FFMPEG_PREBUILT_AND_CREATE_FFMPEG_TARGET_ZIP_PATH}" PARENT_SCOPE)    
     set(${RETURN_VAR_PREFIX}_INCLUDE_DIR "${FFMPEG_INCLUDE_DIR}" PARENT_SCOPE)
     set(${RETURN_VAR_PREFIX}_LIB_DIR "${FFMPEG_LIB_DIR}" PARENT_SCOPE)
     set(${RETURN_VAR_PREFIX}_BIN_DIR "${FFMPEG_BIN_DIR}" PARENT_SCOPE)
@@ -240,28 +250,39 @@ function(core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_cre
     
 endfunction()
 
-
 # ================================================
 # usage examples
 # ================================================
 
-# Example 1: Simplest usage (auto download, extract, create targets, copy DLLs)
-# core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target_and_copy_dlls()
+# Example 1: Simplest usage
+#
+# Download FFmpeg, extract it, create targets,
+# and automatically copy DLLs after build.
+#
+# cmake_tools_core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target_and_copy_dlls()
+#
 # target_link_libraries(my_app PRIVATE FFmpeg::All)
 
+
 # Example 2: Specify executable target
-# core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target_and_copy_dlls(
+#
+# cmake_tools_core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target_and_copy_dlls(
 #     EXECUTABLE_TARGET CMakeProject1
 # )
+#
 # target_link_libraries(CMakeProject1 PRIVATE FFmpeg::All)
 
-# Example 3: Disable auto DLL copy (manual control)
-# core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target_and_copy_dlls(
+
+# Example 3: Disable automatic DLL copying
+#
+# cmake_tools_core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target_and_copy_dlls(
 #     AUTO_COPY_DLLS FALSE
 # )
 
+
 # Example 4: Full configuration
-# core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target_and_copy_dlls(
+#
+# cmake_tools_core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target_and_copy_dlls(
 #     FILENAME "ffmpeg-n8.1-latest-win64-gpl-shared-8.1.zip"
 #     DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/third_party"
 #     TARGET_NAME "FFmpeg"
@@ -270,9 +291,15 @@ endfunction()
 #     IS_SILENT_MODE FALSE
 #     AUTO_COPY_DLLS TRUE
 # )
+#
+# target_link_libraries(my_app PRIVATE FFmpeg::All)
+
 
 # Example 5: Silent mode for CI/CD
-# core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target_and_copy_dlls(
+#
+# cmake_tools_core_dependency_std_pipeline_download_and_unzip_ffmpeg_prebuilt_and_create_ffmpeg_target_and_copy_dlls(
 #     IS_SILENT_MODE TRUE
 #     IS_GLOBAL_MODE TRUE
 # )
+#
+# target_link_libraries(my_app PRIVATE FFmpeg::All)
