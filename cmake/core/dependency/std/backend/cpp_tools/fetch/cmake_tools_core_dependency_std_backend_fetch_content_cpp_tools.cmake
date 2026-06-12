@@ -78,7 +78,7 @@ function(cmake_tools_core_dependency_std_backend_fetch_content_cpp_tools)
 	# ====================================
 	FetchContent_Declare(
 		cpp_tools
-		GIT_REPOSITORY https://github.com/jtl0079/cpp_tools.git
+		GIT_REPOSITORY https://github.com/alims-engineering/cpp_tools.git
 		GIT_TAG        ${ARG_GIT_TAG}
 	)
 
